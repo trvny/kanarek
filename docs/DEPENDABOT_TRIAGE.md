@@ -1,5 +1,10 @@
 # Dependabot alert triage (2026-08-12): build-tooling-only, app not affected
 
+> Written while the app still lived in `trvny/feeds/kanarek/`. Paths below keep the
+> `kanarek/` prefix from that layout; in this repository drop it (`settings.gradle.kts`,
+> `app/build.gradle.kts`). The conclusion is unaffected — it is about the dependency graph,
+> not the directory names.
+
 45 open Dependabot `maven` alerts are attributed to `kanarek/settings.gradle.kts`, the
 only file in `kanarek/` that touches Maven dependency resolution (its
 `pluginManagement`/`dependencyResolutionManagement` blocks). None of the flagged

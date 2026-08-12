@@ -1,0 +1,48 @@
+name: Worker CI
+
+# Check only. The Worker is still deployed from trvny/feeds (that is where the
+# Cloudflare secrets live), so this workflow deliberately stops at typecheck+test —
+# two repositories deploying the same Worker would race each other.
+on: # yamllint disable-line rule:truthy
+  push:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "!worker/**/*.md"
+      - ".github/workflows/worker-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "worker/**"
+      - "!worker/**/*.md"
+      - ".github/workflows/worker-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: worker-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+
+      - name: Typecheck and test
+        working-directory: worker
+        run: |
+          npm ci
+          npm run typecheck
+          npm test

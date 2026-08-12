@@ -1,0 +1,1 @@
+Smoother player bar, fixed logos for the bundled playlists, and named substations for Maxi Italo. Kanarek now lives in its own repository.

@@ -2,16 +2,16 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/trvny/feeds/refs/heads/main/assets/icons/kanarek.svg" alt="Kanarek" width="96">
+<img src="https://raw.githubusercontent.com/trvny/kanarek/refs/heads/main/assets/kanarek.svg" alt="Kanarek" width="96">
 
 # Kanarek
 
 **Czytnik i widżet wiadomości oraz odtwarzacz radia/IPTV dla Androida.**
 
-[![android CI](https://img.shields.io/github/actions/workflow/status/trvny/feeds/android-ci.yml?label=android%20CI&logo=android&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/feeds/actions/workflows/android-ci.yml)
-[![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/feeds/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/feeds/actions/workflows/worker-ci.yml)
+[![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml)
+[![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-FFC107?style=flat-square&logo=kotlin&logoColor=white)](gradle/libs.versions.toml)
-[![license](https://img.shields.io/github/license/trvny/feeds?color=FFC107&style=flat-square)](../LICENSE)
+[![license](https://img.shields.io/github/license/trvny/kanarek?color=FFC107&style=flat-square)](LICENSE)
 
 </div>
 
@@ -46,7 +46,7 @@ Opcjonalny Cloudflare Worker przyspiesza pobieranie i dodaje funkcje sieciowe. N
 
 ## Instalacja
 
-Gotowe pliki APK są publikowane w [GitHub Releases](https://github.com/trvny/feeds/releases).
+Gotowe pliki APK są publikowane w [GitHub Releases](https://github.com/trvny/kanarek/releases).
 
 - `play`: zawiera obsługę Google Cast,
 - `foss`: wariant bez GMS, przeznaczony dla środowisk FOSS i F-Droid.
@@ -69,6 +69,10 @@ Pole Backend URL może pozostać puste: zwykłe feedy są wtedy odświeżane na 
 - [Budowanie, testy i CI](docs/DEVELOPMENT.md)
 - [Cloudflare Worker i API](docs/WORKER.md)
 - [Historia projektu](docs/HISTORY.md)
+- [Notatki do zgłoszenia w F-Droidzie](docs/FDROID.md)
+
+Kanarek powstawał w repozytorium [trvny/feeds](https://github.com/trvny/feeds) do sierpnia 2026 i
+został stamtąd wydzielony razem z całą historią.
 
 ## Rozwój
 
@@ -84,4 +88,4 @@ Szczegóły środowiska, wariantów, testów i workflowów są w [dokumencie dev
 
 ## Licencja
 
-Projekt jest udostępniany na warunkach licencji opisanej w [LICENSE](../LICENSE).
+Projekt jest udostępniany na warunkach licencji opisanej w [LICENSE](LICENSE).

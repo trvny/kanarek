@@ -1,0 +1,19 @@
+Kanarek trzyma Twoje kanały i strumienie na ekranie głównym.
+
+Wiadomości:
+
+* Widget na ekran główny, który przewija wpisy z kanałów RSS/Atom — nagłówek, zdjęcie i dotknięcie prowadzące do artykułu.
+* Kanały dodasz z adresu URL albo wskażesz stronę i Kanarek sam znajdzie kanał.
+* Subskrypcje zaimportujesz i wyeksportujesz jako OPML przez systemowy wybór plików — bez uprawnienia do pamięci.
+* Pobieranie korzysta z zapytań warunkowych, a widget zostawia ostatnie dobre wpisy, zamiast pustoszeć, gdy pobranie się nie uda.
+
+Radio i IPTV:
+
+* Wbudowany odtwarzacz radia internetowego i strumieni IPTV, z osobnym widgetem sterowania odtwarzaniem.
+* Odtwarzanie w tle ze sterowaniem z ekranu blokady i z powiadomienia.
+* Stacje wczytasz z playlist M3U przez wybór plików.
+
+Prywatność:
+
+* Bez konta, bez reklam, bez śledzenia.
+* Działa w całości na urządzeniu. Opcjonalny backend jest wolnym oprogramowaniem (w tym samym repozytorium) i możesz go postawić u siebie, a Kanarek działa również bez niego.
