@@ -36,7 +36,7 @@ jobs:
         # below would rewrite the properties file back, so CI would go green without ever
         # building against the new Gradle.
         run: |
-          version=$(sed -n 's|^distributionUrl=.*gradle-\([0-9][0-9.]*\)-bin\.zip$|\1|p' \
+          version=$(sed -n 's#^distributionUrl=.*/gradle-\(.*\)-\(bin\|all\)\.zip$#\1#p' \
             gradle/wrapper/gradle-wrapper.properties)
           if [ -z "$version" ]; then
             echo "::error::could not parse a Gradle version out of gradle-wrapper.properties"
