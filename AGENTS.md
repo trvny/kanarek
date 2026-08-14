@@ -1,0 +1,24 @@
+# AGENTS.md
+
+Kanarek is a standalone Android app with an optional Cloudflare Worker.
+
+## Repository
+
+- `app/`: Kotlin/Compose Android app, news widgets, radio/IPTV player and player widget.
+- `worker/`: optional TypeScript Worker for feed proxying, discovery/scraping and synchronized state.
+- The Worker is optional. An empty backend configuration must keep on-device feed parsing functional.
+- Keep app and Worker changes separate unless a shared contract or default requires both.
+- Generated/build output is not maintained source.
+
+## Working method
+
+- Check `main`, open pull requests and recent changes before overlapping work.
+- Read the active workflow and project files instead of relying on remembered versions or commands.
+- Keep one maintained source of truth per concern.
+- Do not commit credentials, Cloudflare identifiers, binding IDs or private deployment metadata.
+
+## GitHub
+
+Use `gptomek[bot]` for commits, comments, review replies and reactions when available. Open pull requests as `trvny` so automatic reviews run. Treat automated reviews as advisory and apply valid findings directly.
+
+Keep one logical change per pull request. Truly trivial low-risk fixes may go directly to `main`. Merge only when relevant checks are green on the final head and actionable review threads are resolved; prefer squash merge.
