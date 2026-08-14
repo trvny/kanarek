@@ -11,4 +11,3 @@ captures/
 *.keystore
 !debug.keystore
 megalinter-reports/
-mega-linter.log
