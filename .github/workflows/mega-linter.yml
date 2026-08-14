@@ -19,9 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
-      pull-requests: write
-      checks: write
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -40,18 +37,7 @@ jobs:
               github.event_name == 'push' &&
               contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref)
             }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLY_FIXES_EVENT: none
-          REPOSITORY_TRUFFLEHOG_ARGUMENTS: >-
-            git file://.
-            --since-commit
-            ${{ github.event.pull_request.base.sha || github.event.before }}
-            --branch
-            ${{ github.event.pull_request.head.sha || github.event.after }}
-            --fail
-            --no-update
-            --github-actions
-            --results=verified,unknown
 
       - name: Archive MegaLinter reports
         if: always()
