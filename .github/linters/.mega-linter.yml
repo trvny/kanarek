@@ -1,0 +1,46 @@
+---
+FLAVOR_SUGGESTIONS: false
+SECURITY_SUGGESTIONS: false
+APPLY_FIXES: all
+LINTER_RULES_PATH: ".github/linters"
+
+DISABLE:
+  - SPELL
+  - COPYPASTE
+
+# Keep the focused repository secret scan, but avoid turning a style workflow
+# into a second full security scanner.
+DISABLE_LINTERS:
+  - REPOSITORY_CHECKOV
+  - REPOSITORY_GIT_DIFF
+  - REPOSITORY_BETTERLEAKS
+  - REPOSITORY_GRYPE
+  - REPOSITORY_LS_LINT
+  - REPOSITORY_OSV_SCANNER
+  - REPOSITORY_SECRETLINT
+  - REPOSITORY_SEMGREP
+  - REPOSITORY_SYFT
+  - REPOSITORY_TRIVY
+  - REPOSITORY_TRIVY_SBOM
+
+REPOSITORY_TRUFFLEHOG_COMMAND_REMOVE_ARGUMENTS:
+  - "filesystem"
+  - "."
+  - "--fail"
+  - "--only-verified"
+  - "--no-update"
+
+ACTION_ZIZMOR_ARGUMENTS:
+  - "--offline"
+  - "--min-severity=low"
+
+KOTLIN_DETEKT_CONFIG_FILE: "detekt-config.yml"
+KOTLIN_DETEKT_ARGUMENTS:
+  - "--build-upon-default-config"
+
+# Existing Kotlin findings should be visible without blocking introduction of
+# the standalone lint workflow. Android lint remains blocking in Android CI.
+DISABLE_ERRORS_LINTERS:
+  - KOTLIN_DETEKT
+
+FILTER_REGEX_EXCLUDE: "(app/build/|build/|worker/node_modules/|package-lock\\.json)"
