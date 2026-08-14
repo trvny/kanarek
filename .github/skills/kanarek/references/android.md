@@ -46,11 +46,11 @@ Keep default and Polish string resources synchronized for user-facing keys. Back
 
 ## Validation
 
-Use the active command from `.github/workflows/android-ci.yml`. The wrapper scripts are intentionally not tracked, so on a fresh clone first derive the current version from `gradle/wrapper/gradle-wrapper.properties` and generate them, as CI does:
+Use the active command from `.github/workflows/android-ci.yml`. The wrapper scripts are intentionally not tracked. On a fresh clone, follow the workflow bootstrap exactly: parse the version from `gradle/wrapper/gradle-wrapper.properties`, install/use that exact Gradle distribution, then generate the wrapper. Do not run the wrapper task with an older system Gradle.
+
+After the wrapper exists, the current full validation command is:
 
 ```bash
-GRADLE_VERSION=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' gradle/wrapper/gradle-wrapper.properties)
-gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 ./gradlew assemblePlayDebug assembleFossDebug testPlayDebugUnitTest lintPlayDebug --stacktrace
 ```
 
