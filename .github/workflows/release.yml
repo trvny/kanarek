@@ -31,18 +31,38 @@ jobs:
           fi
 
           version="$(sed -n 's/^[[:space:]]*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
+          version_code="$(sed -n 's/^[[:space:]]*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts | head -1)"
           if ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::app/build.gradle.kts must declare a semantic version such as 1.0.0."
             exit 1
           fi
+          if ! printf '%s\n' "$version_code" | grep -Eq '^[0-9]+$'; then
+            echo "::error::app/build.gradle.kts must declare a numeric versionCode."
+            exit 1
+          fi
+
           expected_tag="v${version}"
           if [ "$GITHUB_REF_NAME" != "$expected_tag" ]; then
             echo "::error::Tag $GITHUB_REF_NAME does not match app version $version (expected $expected_tag)."
             exit 1
           fi
+
           previous_tag="$(git describe --tags --abbrev=0 --match 'v*' HEAD^ 2>/dev/null || true)"
+          if [ -n "$previous_tag" ]; then
+            previous_code="$(git show "${previous_tag}:app/build.gradle.kts" | sed -n 's/^[[:space:]]*versionCode = \([0-9][0-9]*\).*/\1/p' | head -1)"
+            if ! printf '%s\n' "$previous_code" | grep -Eq '^[0-9]+$'; then
+              echo "::error::Could not read versionCode from $previous_tag."
+              exit 1
+            fi
+            if [ "$version_code" -le "$previous_code" ]; then
+              echo "::error::versionCode must increase (current $version_code, $previous_tag had $previous_code)."
+              exit 1
+            fi
+          fi
+
           {
             echo "version=$version"
+            echo "version_code=$version_code"
             echo "previous_tag=$previous_tag"
           } >> "$GITHUB_OUTPUT"
 
@@ -92,6 +112,9 @@ jobs:
           GRADLE_VERSION: ${{ steps.gradle.outputs.version }}
         run: gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 
+      - name: Validate release tree
+        run: ./gradlew assemblePlayDebug assembleFossDebug testPlayDebugUnitTest lintPlayDebug --no-daemon --stacktrace
+
       - name: Decode release keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -116,6 +139,8 @@ jobs:
         run: ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Rename release APKs
+        # These filenames exist only when the signing env above reached Gradle. If it did not,
+        # AGP emits *-unsigned.apk and this step fails closed instead of publishing it.
         env:
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
