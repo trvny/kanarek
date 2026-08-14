@@ -67,17 +67,11 @@ Per-stream `User-Agent` and `Referer` values are stored beside the station and i
 
 OPML and M3U/M3U8 operations use Android's Storage Access Framework, so Kanarek does not request broad storage permission.
 
-## Stack and versions
+## Stack
 
-- Kotlin 2.4.10 and Jetpack Compose Material 3
-- Android Gradle Plugin 9.3.1 and Gradle 9.6.1
-- `compileSdk` 37, `targetSdk` 36, `minSdk` 26
-- JVM 17
-- Media3 ExoPlayer, HLS, MediaSession, and optional CastPlayer
-- DataStore, WorkManager, and Coil
-- TypeScript Cloudflare Worker
+The maintained version sources are `gradle/libs.versions.toml`, `gradle/wrapper/gradle-wrapper.properties`, `gradle.properties`, and the module build files. Do not duplicate exact Kotlin, AGP, Gradle, SDK, or Media3 versions in architecture documentation.
 
-Versions are centralized in `gradle/libs.versions.toml`. The project uses AGP's built-in Kotlin and modern DSL. It deliberately avoids Hilt and Room.
+The project uses Jetpack Compose Material 3, AGP's built-in Kotlin and modern DSL, JVM 17, Media3/ExoPlayer, DataStore, WorkManager, Coil, and a TypeScript Cloudflare Worker. It deliberately avoids Hilt and Room.
 
 ## Source layout
 

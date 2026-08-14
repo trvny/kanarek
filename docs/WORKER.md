@@ -6,10 +6,15 @@ The Worker adds shared edge parsing and caching, feed discovery, HTML-to-Atom sc
 
 ## Deploy
 
-Run from `kanarek/worker/`:
+Production is connected directly to `trvny/kanarek` through Cloudflare Workers Builds. Changes under `worker/` on `main` run the Worker tests and deploy with Wrangler from `worker/`.
+
+For an authorized manual deployment:
 
 ```bash
-npm install
+cd worker
+npm ci
+npm run typecheck
+npm test
 npx wrangler deploy
 ```
 

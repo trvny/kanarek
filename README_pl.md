@@ -10,7 +10,6 @@
 
 [![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml)
 [![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-FFC107?style=flat-square&logo=kotlin&logoColor=white)](gradle/libs.versions.toml)
 [![license](https://img.shields.io/github/license/trvny/kanarek?color=FFC107&style=flat-square)](LICENSE)
 
 </div>
@@ -46,7 +45,7 @@ Opcjonalny Cloudflare Worker przyspiesza pobieranie i dodaje funkcje sieciowe. N
 
 ## Instalacja
 
-Gotowe pliki APK są publikowane w [GitHub Releases](https://github.com/trvny/kanarek/releases).
+Historyczne APK nadal są dostępne w starych [wydaniach trvny/feeds](https://github.com/trvny/feeds/releases). Przyszłe samodzielne wydania będą publikowane w [trvny/kanarek](https://github.com/trvny/kanarek/releases).
 
 - `play`: zawiera obsługę Google Cast,
 - `foss`: wariant bez GMS, przeznaczony dla środowisk FOSS i F-Droid.
@@ -76,15 +75,18 @@ został stamtąd wydzielony razem z całą historią.
 
 ## Rozwój
 
-Najkrótsza ścieżka lokalna:
+Skrypty Gradle wrappera celowo nie są commitowane. Na świeżym klonie zainstaluj dokładną wersję Gradle wskazaną w `gradle/wrapper/gradle-wrapper.properties`, a następnie utwórz wrapper przed użyciem `./gradlew`:
 
 ```bash
-gradle wrapper --gradle-version 9.6.1
+GRADLE_VERSION=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' gradle/wrapper/gradle-wrapper.properties)
+command -v gradle >/dev/null || { echo "Najpierw zainstaluj Gradle $GRADLE_VERSION" >&2; exit 1; }
+gradle --version | grep -F "Gradle $GRADLE_VERSION" >/dev/null || { echo "Do utworzenia wrappera użyj Gradle $GRADLE_VERSION" >&2; exit 1; }
+gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 ./gradlew assembleDebug
 ./gradlew testPlayDebugUnitTest
 ```
 
-Szczegóły środowiska, wariantów, testów i workflowów są w [dokumencie developerskim](docs/DEVELOPMENT.md).
+Konfiguracja zależna od systemu i bootstrap równoważny z CI są opisane w [dokumencie developerskim](docs/DEVELOPMENT.md).
 
 ## Licencja
 

@@ -15,7 +15,7 @@ the extracted commits with the identical trees.
 
 To go in `metadata/com.kanarek.yml` in a fork of
 [fdroiddata](https://gitlab.com/fdroid/fdroiddata). Verify every field against the
-[metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) before filing —
+[metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) before filing;
 this is a draft written from the repository, not from a successful build.
 
 ```yaml
@@ -52,13 +52,14 @@ GMS, `foss` does not. F-Droid must build `foss`.
 
 ## The Gradle wrapper is missing on purpose
 
-Only `gradle/wrapper/gradle-wrapper.properties` is tracked — there is no `gradle-wrapper.jar`
+Only `gradle/wrapper/gradle-wrapper.properties` is tracked; there is no `gradle-wrapper.jar`
 and no `gradlew`. That is deliberate: a committed jar is a prebuilt binary, which F-Droid's
 scanner objects to. fdroidserver runs its own Gradle wrapper and reads the version out of
 `gradle-wrapper.properties`, so the build should not need `gradlew` from the repository.
-**Check this against a real `fdroid build` before submitting** — if it turns out fdroidserver
-does want `gradlew`, the fix is a `prebuild:` step running `gradle wrapper`, not committing
-the jar. CI here does the same thing (see `.github/workflows/android-ci.yml`).
+**Check this against a real `fdroid build` before submitting**. If it turns out fdroidserver
+does want `gradlew`, the fix is a `prebuild:` step that installs/uses the exact Gradle version
+from `gradle-wrapper.properties` before running its `wrapper` task, not committing the jar.
+CI here follows the same version-source rule in `.github/workflows/android-ci.yml`.
 
 ## Still to do before filing
 
@@ -67,9 +68,10 @@ the jar. CI here does the same thing (see `.github/workflows/android-ci.yml`).
   `en-US` and `pl-PL`; the listing will look bare without images.
 - A real `fdroid build` / `fdroid lint` run. Neither is possible on the maintainer's Windows
   machine (no Android SDK platform installed), so this needs CI or another box.
-- Decide whether `worker/` belongs here at all. It is a Cloudflare Worker, it is not part of
-  the APK, and it is still deployed from `trvny/feeds`. It is carried along here only because
-  the subtree split took the whole directory.
+
+The optional `worker/` backend is maintained in this repository but is not part of the APK.
+Production deployment is connected directly to `trvny/kanarek` through Cloudflare Workers
+Builds, so F-Droid packaging does not depend on the old `trvny/feeds` repository.
 
 ## The other F-Droid submission
 
