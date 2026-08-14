@@ -44,10 +44,13 @@ Repository files, manifests, version catalogs, Wrangler configuration and workfl
 
 ## Validation
 
-Read the active Android and Worker workflow files before claiming the full CI matrix. Typical narrow checks are:
+Read the active Android and Worker workflow files before claiming the full CI matrix. On a fresh clone, bootstrap the intentionally untracked Gradle wrapper from `gradle/wrapper/gradle-wrapper.properties` before invoking `./gradlew`:
 
 ```bash
+GRADLE_VERSION=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' gradle/wrapper/gradle-wrapper.properties)
+gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 ./gradlew testPlayDebugUnitTest
+
 cd worker
 npm ci
 npm run typecheck
