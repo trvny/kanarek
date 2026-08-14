@@ -62,8 +62,8 @@ Repository workflows live in `.github/workflows/`.
 
 - `android-ci.yml`: builds play and foss debug APKs, runs Android lint and JVM tests.
 - `worker-ci.yml`: TypeScript typecheck and Vitest tests for Worker changes.
+- `release.yml`: builds and publishes signed play/foss APKs for matching `v<versionName>` tags.
 - Production Worker deployment is owned by Cloudflare Workers Builds and runs from `worker/` on `main` changes.
-- Android release/signing is the remaining migration item; until that cutover is complete, do not describe a standalone release workflow here as active.
 - GitHub CodeQL default setup provides repository code scanning.
 - Dependabot handles dependency updates according to the repository configuration.
 
@@ -89,7 +89,7 @@ The intended release artifacts are:
 
 `app/build.gradle.kts` is the version source of truth. Standalone release tags use `v<versionName>`, matching the migrated `v1.0.0` and `v1.0.1` tags and the F-Droid metadata. Before a new release, bump `versionName` and increase `versionCode`, merge that change to `main`, then tag the release commit with the matching `v<versionName>` tag.
 
-The signing/publishing automation is still being migrated from the old repository. When that workflow moves here, it must use the standalone `v<versionName>` convention rather than the old monorepo-only `kanarek-v<versionName>` tag prefix.
+Release signing requires repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD`. The workflow is migrated, but those secret values must be configured in `trvny/kanarek` before the first standalone release; GitHub does not expose existing secret values for copying from another repository.
 
 Further reading:
 
