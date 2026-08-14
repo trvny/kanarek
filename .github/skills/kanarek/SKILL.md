@@ -39,7 +39,7 @@ Repository files, manifests, version catalogs, Wrangler configuration and workfl
 
 - Inspect current `main`, open PRs and recent changes before editing.
 - Keep app and Worker changes separate unless an interface or shared default requires both.
-- Do not commit credentials, Cloudflare account identifiers, binding IDs or private deployment metadata.
+- Never commit credentials, tokens, Cloudflare account IDs or private deployment metadata. Public KV/D1/resource IDs required by Wrangler belong in `worker/wrangler.jsonc`.
 - Production Worker deployment is owned by Cloudflare Workers Builds from `worker/` on `main`.
 
 ## Validation
