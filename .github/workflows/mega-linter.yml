@@ -27,7 +27,15 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Install Worker dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+
+      - name: Install Worker dependencies for advisory TypeScript lint
+        continue-on-error: true
         working-directory: worker
         run: npm ci
 
@@ -47,9 +55,7 @@ jobs:
           name: MegaLinter reports
           include-hidden-files: "true"
           retention-days: 7
-          path: |
-            megalinter-reports
-            mega-linter.log
+          path: megalinter-reports
 
       - name: Gate MegaLinter
         if: always()
