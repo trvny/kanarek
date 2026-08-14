@@ -15,7 +15,7 @@ Kanarek is a standalone Android app with an optional Cloudflare Worker.
 - Check `main`, open pull requests and recent changes before overlapping work.
 - Read the active workflow and project files instead of relying on remembered versions or commands.
 - Keep one maintained source of truth per concern.
-- Do not commit credentials, Cloudflare identifiers, binding IDs or private deployment metadata.
+- Never commit credentials, tokens, account IDs or private deployment metadata. Public Wrangler binding/resource IDs required for reproducible deployment belong in `worker/wrangler.jsonc`.
 
 ## GitHub
 
