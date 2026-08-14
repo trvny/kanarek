@@ -75,14 +75,18 @@ was extracted into this repository with its full history.
 
 ## Development
 
-The Gradle wrapper scripts are intentionally not committed. On a fresh clone, bootstrap the exact Gradle version declared by `gradle/wrapper/gradle-wrapper.properties` as described in the [development guide](docs/DEVELOPMENT.md) and active Android CI workflow, then run:
+The Gradle wrapper scripts are intentionally not committed. On a fresh clone, install the exact Gradle version declared by `gradle/wrapper/gradle-wrapper.properties`, then bootstrap the wrapper before using it:
 
 ```bash
+GRADLE_VERSION=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' gradle/wrapper/gradle-wrapper.properties)
+command -v gradle >/dev/null || { echo "Install Gradle $GRADLE_VERSION first" >&2; exit 1; }
+gradle --version | grep -F "Gradle $GRADLE_VERSION" >/dev/null || { echo "Use Gradle $GRADLE_VERSION to bootstrap the wrapper" >&2; exit 1; }
+gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 ./gradlew assembleDebug
 ./gradlew testPlayDebugUnitTest
 ```
 
-Environment details, product flavors, test coverage, and workflows live in the [development guide](docs/DEVELOPMENT.md).
+OS-specific setup and the CI-equivalent bootstrap are described in the [development guide](docs/DEVELOPMENT.md).
 
 ## License
 
