@@ -3,13 +3,15 @@ FLAVOR_SUGGESTIONS: false
 SECURITY_SUGGESTIONS: false
 APPLY_FIXES: all
 LINTER_RULES_PATH: ".github/linters"
+GITHUB_COMMENT_REPORTER: false
+GITHUB_STATUS_REPORTER: false
 
 DISABLE:
   - SPELL
   - COPYPASTE
 
-# Keep the focused repository secret scan, but avoid turning a style workflow
-# into a second full security scanner.
+# Keep TruffleHog's default verified-secret scan; the Android and Worker jobs
+# already cover build/type checks, so avoid duplicating heavyweight scanners.
 DISABLE_LINTERS:
   - REPOSITORY_CHECKOV
   - REPOSITORY_GIT_DIFF
@@ -23,13 +25,6 @@ DISABLE_LINTERS:
   - REPOSITORY_TRIVY
   - REPOSITORY_TRIVY_SBOM
 
-REPOSITORY_TRUFFLEHOG_COMMAND_REMOVE_ARGUMENTS:
-  - "filesystem"
-  - "."
-  - "--fail"
-  - "--only-verified"
-  - "--no-update"
-
 ACTION_ZIZMOR_ARGUMENTS:
   - "--offline"
   - "--min-severity=low"
@@ -38,9 +33,10 @@ KOTLIN_DETEKT_CONFIG_FILE: "detekt-config.yml"
 KOTLIN_DETEKT_ARGUMENTS:
   - "--build-upon-default-config"
 
-# Existing Kotlin findings should be visible without blocking introduction of
-# the standalone lint workflow. Android lint remains blocking in Android CI.
+# Existing Kotlin/yamllint findings stay visible without making the new lint
+# workflow a cleanup project. Android lint remains blocking in Android CI.
 DISABLE_ERRORS_LINTERS:
   - KOTLIN_DETEKT
+  - YAML_YAMLLINT
 
 FILTER_REGEX_EXCLUDE: "(app/build/|build/|worker/node_modules/|package-lock\\.json)"
