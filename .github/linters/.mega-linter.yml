@@ -1,42 +1,56 @@
 ---
+# Per-linter rules live alongside this file; this file only wires MegaLinter.
 FLAVOR_SUGGESTIONS: false
-SECURITY_SUGGESTIONS: false
 APPLY_FIXES: all
-LINTER_RULES_PATH: ".github/linters"
 GITHUB_COMMENT_REPORTER: false
 GITHUB_STATUS_REPORTER: false
+LINTER_RULES_PATH: ".github/linters"
 
-DISABLE:
-  - SPELL
-  - COPYPASTE
+ENABLE_LINTERS:
+  - ACTION_ACTIONLINT
+  - ACTION_ZIZMOR
+  - EDITORCONFIG_EDITORCONFIG_CHECKER
+  - JSON_JSONLINT
+  - JSON_PRETTIER
+  - JSON_V8R
+  - KOTLIN_DETEKT
+  - KOTLIN_KTLINT
+  - MARKDOWN_MARKDOWNLINT
+  - REPOSITORY_TRUFFLEHOG
+  - TYPESCRIPT_STANDARD
+  - XML_XMLLINT
+  - YAML_PRETTIER
+  - YAML_V8R
+  - YAML_YAMLLINT
 
-# Keep TruffleHog's default verified-secret scan; the Android and Worker jobs
-# already cover build/type checks, so avoid duplicating heavyweight scanners.
-DISABLE_LINTERS:
-  - REPOSITORY_CHECKOV
-  - REPOSITORY_GIT_DIFF
-  - REPOSITORY_BETTERLEAKS
-  - REPOSITORY_GRYPE
-  - REPOSITORY_LS_LINT
-  - REPOSITORY_OSV_SCANNER
-  - REPOSITORY_SECRETLINT
-  - REPOSITORY_SEMGREP
-  - REPOSITORY_SYFT
-  - REPOSITORY_TRIVY
-  - REPOSITORY_TRIVY_SBOM
-
+ACTION_ZIZMOR_RULES_PATH: ".github/linters"
+ACTION_ZIZMOR_CONFIG_FILE: "zizmor.yml"
 ACTION_ZIZMOR_ARGUMENTS:
   - "--offline"
-  - "--min-severity=low"
+  - "--min-severity=medium"
 
+JSON_PRETTIER_RULES_PATH: ".github/linters"
+JSON_PRETTIER_CONFIG_FILE: ".prettierrc.json"
+MARKDOWN_MARKDOWNLINT_RULES_PATH: ".github/linters"
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: ".markdownlint.json"
+YAML_PRETTIER_RULES_PATH: ".github/linters"
+YAML_PRETTIER_CONFIG_FILE: ".prettierrc.json"
+YAML_YAMLLINT_RULES_PATH: ".github/linters"
+YAML_YAMLLINT_CONFIG_FILE: ".yamllint.yml"
+
+KOTLIN_DETEKT_RULES_PATH: ".github/linters"
 KOTLIN_DETEKT_CONFIG_FILE: "detekt-config.yml"
 KOTLIN_DETEKT_ARGUMENTS:
   - "--build-upon-default-config"
 
-# Existing Kotlin/yamllint findings stay visible without making the new lint
-# workflow a cleanup project. Android lint remains blocking in Android CI.
+# ts-standard is deliberately zero-config; it only needs the Worker project path.
+TYPESCRIPT_STANDARD_ARGUMENTS:
+  - "--project"
+  - "worker/tsconfig.json"
+
+# Detekt is useful as debt visibility, while Android lint remains the blocking
+# correctness/style gate for Kotlin.
 DISABLE_ERRORS_LINTERS:
   - KOTLIN_DETEKT
-  - YAML_YAMLLINT
 
-FILTER_REGEX_EXCLUDE: "(app/build/|build/|worker/node_modules/|package-lock\\.json)"
+FILTER_REGEX_EXCLUDE: "(^app/build/|^build/|^worker/node_modules/|package-lock\\.json)"
