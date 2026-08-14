@@ -10,3 +10,5 @@ captures/
 *.apk
 *.keystore
 !debug.keystore
+megalinter-reports/
+mega-linter.log
