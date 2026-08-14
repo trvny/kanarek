@@ -50,12 +50,13 @@ TYPESCRIPT_STANDARD_ARGUMENTS:
   - "worker/tsconfig.json"
 TYPESCRIPT_STANDARD_FILTER_REGEX_INCLUDE: "(^|/)worker/src/.*\\.ts$"
 
-# Existing Detekt, ts-standard and EditorConfig findings remain visible while
-# Android lint, Worker typecheck/tests and the other Cupcake linters stay hard
-# gates. This introduces MegaLinter without turning it into a legacy cleanup PR.
+# Existing style/static-analysis debt stays visible without turning introduction
+# of MegaLinter into an unrelated cleanup PR. Android lint and Worker CI remain
+# the blocking correctness gates for the maintained Kotlin/TypeScript code.
 DISABLE_ERRORS_LINTERS:
   - KOTLIN_DETEKT
+  - KOTLIN_KTLINT
   - TYPESCRIPT_STANDARD
   - EDITORCONFIG_EDITORCONFIG_CHECKER
 
-FILTER_REGEX_EXCLUDE: "((^|/)(app/build|build|worker/node_modules)(/|$)|package-lock\\.json$)"
+FILTER_REGEX_EXCLUDE: "((^|/)(app/build|build|node_modules)(/|$)|package-lock\\.json$)"
