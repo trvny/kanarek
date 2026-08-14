@@ -20,6 +20,4 @@ Kanarek is an Android reader/player and its supporting Cloudflare Worker. Feed g
 
 ## GitHub
 
-Use `gptomek[bot]` for commits, comments, review replies and reactions when available. Open pull requests as `trvny` so automatic reviews run. Treat automated reviews as advisory and apply valid findings directly.
-
 Keep one logical change per pull request. Truly trivial low-risk fixes may go directly to `main`. Merge only when relevant checks are green on the final head and actionable review threads are resolved; prefer squash merge.
