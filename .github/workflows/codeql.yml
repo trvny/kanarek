@@ -3,8 +3,16 @@ name: CodeQL
 on: # yamllint disable-line rule:truthy
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - ".github/skills/**"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+      - ".github/skills/**"
   schedule:
     - cron: "30 3 * * 1"
 
@@ -53,6 +61,8 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # Keep this in sync with android-ci.yml: the wrapper properties file is
+      # the version source and the parsed value reaches the shell via env.
       - name: Read Gradle version
         if: matrix.language == 'java-kotlin'
         id: gradle
