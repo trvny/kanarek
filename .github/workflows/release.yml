@@ -24,6 +24,12 @@ jobs:
       - name: Resolve release version
         id: release
         run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Release tag must point to a commit already merged into main."
+            exit 1
+          fi
+
           version="$(sed -n 's/^[[:space:]]*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
           if ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "::error::app/build.gradle.kts must declare a semantic version such as 1.0.0."
