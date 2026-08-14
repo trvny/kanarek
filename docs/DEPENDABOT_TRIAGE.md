@@ -1,8 +1,13 @@
 # Dependabot alert triage (2026-08-12): build-tooling-only, app not affected
 
-> Written while the app still lived in `trvny/feeds/kanarek/`. Paths below keep the
+> Historical snapshot from 2026-08-12. Exact package and tool versions below record what was
+> actually resolved during that investigation; they are evidence, not current build requirements.
+> For current Gradle/AGP/Kotlin versions and wrapper bootstrap, use the repository configuration
+> and `.github/workflows/android-ci.yml`.
+>
+> Written while the app still lived in `trvny/feeds/kanarek/`. Paths below may retain the
 > `kanarek/` prefix from that layout; in this repository drop it (`settings.gradle.kts`,
-> `app/build.gradle.kts`). The conclusion is unaffected — it is about the dependency graph,
+> `app/build.gradle.kts`). The conclusion is unaffected because it concerns the dependency graph,
 > not the directory names.
 
 45 open Dependabot `maven` alerts are attributed to `kanarek/settings.gradle.kts`, the
@@ -18,11 +23,9 @@ glance at the alert list.
 
 ## Method
 
-Built with the same recipe as `.github/workflows/android-ci.yml` (JDK 17 in CI;
-JDK 21 was used here since no JDK 17 was available, and Gradle 9.6.1 supports both):
-generated the wrapper (`gradle wrapper --gradle-version 9.6.1`; `kanarek/gradle/wrapper/`
-only tracks `gradle-wrapper.properties` in this repo, so the jar and `gradlew`/`gradlew.bat`
-are regenerated rather than committed), then ran:
+The 2026-08-12 run used the then-current repository toolchain. To reproduce the analysis today,
+bootstrap the wrapper exactly as `.github/workflows/android-ci.yml` does from
+`gradle/wrapper/gradle-wrapper.properties`, then run:
 
 - `./gradlew buildEnvironment` — resolves the root build's `classpath` configuration,
   i.e. the AGP + Kotlin Gradle plugin dependency graph declared in
@@ -35,12 +38,10 @@ are regenerated rather than committed), then ran:
   Platform (UTP) configurations Gradle creates to drive `connectedAndroidTest`.
 
 Both were run locally for this triage (2026-08-12), not by CI — `android-ci.yml`
-only runs `assemblePlayDebug assembleFossDebug testPlayDebugUnitTest lintPlayDebug`
-and does not invoke either dependency-report task, and `--stacktrace` prints
-exception stacktraces, not dependency trees, so no report is currently archived
-anywhere. To reproduce: check out this commit, generate the wrapper as above, and
-re-run the two commands above with an Android SDK at `compileSdk 37`
-(`platforms;android-37.0`) on the local machine.
+only runs its active build/test/lint command and does not invoke either dependency-report task,
+and `--stacktrace` prints exception stacktraces, not dependency trees, so no report is currently
+archived anywhere. A reproduction requires the Android SDK level declared by the current build,
+not the historical value copied into this document.
 
 ## Findings by package family
 
