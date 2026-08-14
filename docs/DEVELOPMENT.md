@@ -4,20 +4,16 @@
 
 - Android Studio or command-line Android SDK
 - JDK 17
-- Gradle 9.6.1
+- the Gradle version declared in `gradle/wrapper/gradle-wrapper.properties`
 - Node.js and npm for the Worker
 
 Dependency versions live in `gradle/libs.versions.toml`.
 
-The Gradle wrapper JAR is not committed. Android Studio regenerates it when importing the project, or run:
-
-```bash
-gradle wrapper --gradle-version 9.6.1
-```
+The Gradle wrapper JAR and scripts are not committed. On a fresh clone, follow the bootstrap in `.github/workflows/android-ci.yml`: read the required version from `gradle/wrapper/gradle-wrapper.properties`, install/use that exact Gradle version, then run its `wrapper` task. Do not rely on an older system Gradle to configure the project.
 
 ## Build and install
 
-Run commands from `kanarek/`:
+Run Android commands from the repository root:
 
 ```bash
 ./gradlew assembleDebug
@@ -51,7 +47,7 @@ Worker typecheck and tests:
 
 ```bash
 cd worker
-npm install
+npm ci
 npm run typecheck
 npm test
 ```
@@ -62,15 +58,16 @@ The Worker suite covers feed parsing, conditional ETags, output formats, Radio B
 
 ## Continuous integration
 
-Repository workflows live in `.github/workflows/` and use `kanarek/` as their working directory where appropriate.
+Repository workflows live in `.github/workflows/`.
 
 - `android-ci.yml`: builds play and foss debug APKs, runs Android lint and JVM tests.
 - `worker-ci.yml`: TypeScript typecheck and Vitest tests for Worker changes.
-- `release.yml`: builds signed release APKs from a matching `kanarek-v<versionName>` tag. A manual run publishes `main` and derives the tag from the app version.
-- MegaLinter workflow: lint and secret scanning.
-- Dependabot workflows: dependency updates and eligible automatic merges.
+- Production Worker deployment is owned by Cloudflare Workers Builds and runs from `worker/` on `main` changes.
+- Android release/signing is the remaining migration item; until that cutover is complete, do not describe a standalone release workflow here as active.
+- GitHub CodeQL default setup provides repository code scanning.
+- Dependabot handles dependency updates according to the repository configuration.
 
-Android build output should be verified through CI when the local environment cannot provide the required SDK and Gradle setup.
+Android build output should be verified through CI when the local environment cannot provide the required SDK and exact Gradle setup.
 
 ## Android notes
 
@@ -85,12 +82,12 @@ Android build output should be verified through CI when the local environment ca
 
 ## Release flavors
 
-The release workflow produces:
+The intended release artifacts are:
 
 - `kanarek-<version>.apk` for the play flavor,
 - `kanarek-<version>-foss.apk` for the GMS-free flavor.
 
-`kanarek/app/build.gradle.kts` is the version source of truth. Before a new release, bump `versionName` and increase `versionCode`, then merge that change to `main`. Release tags use `kanarek-v<versionName>`; tag-triggered runs reject mismatches. A manual **Release** workflow run always publishes `main` and creates the tag from `versionName` when needed.
+`app/build.gradle.kts` is the version source of truth. Before a new release, bump `versionName` and increase `versionCode`, then merge that change to `main`. The standalone release/signing automation is still being migrated from the old repository.
 
 Further reading:
 
