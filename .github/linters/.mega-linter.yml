@@ -43,13 +43,12 @@ KOTLIN_DETEKT_CONFIG_FILE: "detekt-config.yml"
 KOTLIN_DETEKT_ARGUMENTS:
   - "--build-upon-default-config"
 
-# ts-standard has no project config file. Point it at the Worker project and
-# leave tests/vitest to their existing Vitest + typecheck workflow because that
-# tsconfig intentionally covers src/ only.
+# ts-standard has no project config file. worker/tsconfig.json intentionally
+# covers worker/src only, so scope this linter to the same maintained sources.
 TYPESCRIPT_STANDARD_ARGUMENTS:
   - "--project"
   - "worker/tsconfig.json"
-TYPESCRIPT_STANDARD_FILTER_REGEX_EXCLUDE: "(^|/)worker/(test/|vitest\\.config\\.ts$)"
+TYPESCRIPT_STANDARD_FILTER_REGEX_INCLUDE: "(^|/)worker/src/.*\\.ts$"
 
 # Existing Detekt, ts-standard and EditorConfig findings remain visible while
 # Android lint, Worker typecheck/tests and the other Cupcake linters stay hard
