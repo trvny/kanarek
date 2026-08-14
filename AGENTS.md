@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Kanarek is the standalone Android/Worker project split from the old `trvny/feeds` monorepo. Feed generation now belongs to the separate `trvny/feedseek` repository; do not add Feedseek code or sources here.
+Kanarek is an Android reader/player and its supporting Cloudflare Worker. Feed generation belongs to `trvny/feedseek`; do not add Feedseek code or sources here.
 
 ## Repository
 
@@ -9,7 +9,6 @@ Kanarek is the standalone Android/Worker project split from the old `trvny/feeds
 - The Worker is optional. An empty backend configuration must keep on-device feed parsing functional.
 - Keep app and Worker changes separate unless a shared contract or default requires both.
 - Generated/build output is not maintained source.
-- Any frozen `kanarek/` mirror remaining in the former monorepo is migration-only; this repository is the source of truth.
 
 ## Working method
 
