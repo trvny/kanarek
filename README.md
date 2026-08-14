@@ -88,6 +88,6 @@ gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 
 OS-specific setup and the CI-equivalent bootstrap are described in the [development guide](docs/DEVELOPMENT.md).
 
-## License
+## [License](LICENSE)
 
-The project is available under the terms described in [LICENSE](LICENSE).
+[![License](https://www.shieldcn.dev/github/license/trvny/feeds.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
