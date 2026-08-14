@@ -1,0 +1,62 @@
+---
+# Per-linter rules live alongside this file; this file only wires MegaLinter.
+FLAVOR_SUGGESTIONS: false
+APPLY_FIXES: all
+GITHUB_COMMENT_REPORTER: false
+GITHUB_STATUS_REPORTER: false
+LINTER_RULES_PATH: ".github/linters"
+
+ENABLE_LINTERS:
+  - ACTION_ACTIONLINT
+  - ACTION_ZIZMOR
+  - EDITORCONFIG_EDITORCONFIG_CHECKER
+  - JSON_JSONLINT
+  - JSON_PRETTIER
+  - JSON_V8R
+  - KOTLIN_DETEKT
+  - KOTLIN_KTLINT
+  - MARKDOWN_MARKDOWNLINT
+  - REPOSITORY_TRUFFLEHOG
+  - TYPESCRIPT_STANDARD
+  - XML_XMLLINT
+  - YAML_PRETTIER
+  - YAML_V8R
+  - YAML_YAMLLINT
+
+ACTION_ZIZMOR_RULES_PATH: ".github/linters"
+ACTION_ZIZMOR_CONFIG_FILE: "zizmor.yml"
+ACTION_ZIZMOR_ARGUMENTS:
+  - "--offline"
+  - "--min-severity=medium"
+
+JSON_PRETTIER_RULES_PATH: ".github/linters"
+JSON_PRETTIER_CONFIG_FILE: ".prettierrc.json"
+MARKDOWN_MARKDOWNLINT_RULES_PATH: ".github/linters"
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: ".markdownlint.json"
+YAML_PRETTIER_RULES_PATH: ".github/linters"
+YAML_PRETTIER_CONFIG_FILE: ".prettierrc.json"
+YAML_YAMLLINT_RULES_PATH: ".github/linters"
+YAML_YAMLLINT_CONFIG_FILE: ".yamllint.yml"
+
+KOTLIN_DETEKT_RULES_PATH: ".github/linters"
+KOTLIN_DETEKT_CONFIG_FILE: "detekt-config.yml"
+KOTLIN_DETEKT_ARGUMENTS:
+  - "--build-upon-default-config"
+
+# ts-standard has no project config file. worker/tsconfig.json intentionally
+# covers worker/src only, so scope this linter to the same maintained sources.
+TYPESCRIPT_STANDARD_ARGUMENTS:
+  - "--project"
+  - "worker/tsconfig.json"
+TYPESCRIPT_STANDARD_FILTER_REGEX_INCLUDE: "(^|/)worker/src/.*\\.ts$"
+
+# Existing style/static-analysis debt stays visible without turning introduction
+# of MegaLinter into an unrelated cleanup PR. Android lint and Worker CI remain
+# the blocking correctness gates for the maintained Kotlin/TypeScript code.
+DISABLE_ERRORS_LINTERS:
+  - KOTLIN_DETEKT
+  - KOTLIN_KTLINT
+  - TYPESCRIPT_STANDARD
+  - EDITORCONFIG_EDITORCONFIG_CHECKER
+
+FILTER_REGEX_EXCLUDE: "((^|/)(app/build|build|node_modules)(/|$)|package-lock\\.json$)"

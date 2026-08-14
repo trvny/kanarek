@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Kanarek is a standalone Android app with an optional Cloudflare Worker.
+Kanarek is the standalone Android/Worker project split from the old `trvny/feeds` monorepo. Feed generation now belongs to the separate `trvny/feedseek` repository; do not add Feedseek code or sources here.
 
 ## Repository
 
@@ -9,6 +9,7 @@ Kanarek is a standalone Android app with an optional Cloudflare Worker.
 - The Worker is optional. An empty backend configuration must keep on-device feed parsing functional.
 - Keep app and Worker changes separate unless a shared contract or default requires both.
 - Generated/build output is not maintained source.
+- Any frozen `kanarek/` mirror remaining in the former monorepo is migration-only; this repository is the source of truth.
 
 ## Working method
 
@@ -16,6 +17,7 @@ Kanarek is a standalone Android app with an optional Cloudflare Worker.
 - Read the active workflow and project files instead of relying on remembered versions or commands.
 - Keep one maintained source of truth per concern.
 - Never commit credentials, tokens, account IDs or private deployment metadata. Public Wrangler binding/resource IDs required for reproducible deployment belong in `worker/wrangler.jsonc`.
+- Treat `megalinter-reports/updated_sources` as suggestions and apply only intended fixes.
 
 ## GitHub
 
