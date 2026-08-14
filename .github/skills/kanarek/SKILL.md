@@ -40,21 +40,27 @@ Repository files, manifests, version catalogs, Wrangler configuration and workfl
 - Inspect current `main`, open PRs and recent changes before editing.
 - Keep app and Worker changes separate unless an interface or shared default requires both.
 - Do not commit credentials, Cloudflare account identifiers, binding IDs or private deployment metadata.
-- Deploy only through current repository configuration/workflows when explicitly requested and authorized.
+- Production Worker deployment is owned by Cloudflare Workers Builds from `worker/` on `main`.
 
 ## Validation
 
-Read the active Android and Worker workflow files before claiming the full CI matrix. On a fresh clone, bootstrap the intentionally untracked Gradle wrapper from `gradle/wrapper/gradle-wrapper.properties` before invoking `./gradlew`:
+Read the active Android and Worker workflow files before claiming the full CI matrix. The Gradle wrapper is intentionally untracked; on a fresh clone, use the exact wrapper bootstrap from `.github/workflows/android-ci.yml`, which installs the version parsed from `gradle/wrapper/gradle-wrapper.properties` before running the `wrapper` task.
+
+After that bootstrap, the current full Android CI command is:
 
 ```bash
-GRADLE_VERSION=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' gradle/wrapper/gradle-wrapper.properties)
-gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
-./gradlew testPlayDebugUnitTest
+./gradlew assemblePlayDebug assembleFossDebug testPlayDebugUnitTest lintPlayDebug --stacktrace
+```
 
-cd worker
-npm ci
-npm run typecheck
-npm test
+Worker checks run independently:
+
+```bash
+(
+  cd worker
+  npm ci
+  npm run typecheck
+  npm test
+)
 ```
 
 A local edit, connector write or successful typecheck is not proof of deployment or device behavior.
