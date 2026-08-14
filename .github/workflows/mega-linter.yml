@@ -27,6 +27,10 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Install Worker dependencies
+        working-directory: worker
+        run: npm ci
+
       - name: MegaLinter
         id: megalinter
         continue-on-error: true
