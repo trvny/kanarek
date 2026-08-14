@@ -1,8 +1,8 @@
 name: Worker CI
 
-# Check only. The Worker is still deployed from trvny/feeds (that is where the
-# Cloudflare secrets live), so this workflow deliberately stops at typecheck+test —
-# two repositories deploying the same Worker would race each other.
+# Check only. Production deploys are owned by Cloudflare Workers Builds and are
+# triggered from worker/** changes on main, so GitHub Actions must not deploy the
+# same Worker a second time.
 on: # yamllint disable-line rule:truthy
   push:
     branches: [main]
