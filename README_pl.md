@@ -75,14 +75,18 @@ został stamtąd wydzielony razem z całą historią.
 
 ## Rozwój
 
-Skrypty Gradle wrappera celowo nie są commitowane. Na świeżym klonie najpierw uruchom dokładną wersję Gradle wskazaną w `gradle/wrapper/gradle-wrapper.properties`, zgodnie z [dokumentacją developerską](docs/DEVELOPMENT.md) i aktywnym Android CI, a potem:
+Skrypty Gradle wrappera celowo nie są commitowane. Na świeżym klonie zainstaluj dokładną wersję Gradle wskazaną w `gradle/wrapper/gradle-wrapper.properties`, a następnie utwórz wrapper przed użyciem `./gradlew`:
 
 ```bash
+GRADLE_VERSION=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' gradle/wrapper/gradle-wrapper.properties)
+command -v gradle >/dev/null || { echo "Najpierw zainstaluj Gradle $GRADLE_VERSION" >&2; exit 1; }
+gradle --version | grep -F "Gradle $GRADLE_VERSION" >/dev/null || { echo "Do utworzenia wrappera użyj Gradle $GRADLE_VERSION" >&2; exit 1; }
+gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 ./gradlew assembleDebug
 ./gradlew testPlayDebugUnitTest
 ```
 
-Szczegóły środowiska, wariantów, testów i workflowów są w [dokumencie developerskim](docs/DEVELOPMENT.md).
+Konfiguracja zależna od systemu i bootstrap równoważny z CI są opisane w [dokumencie developerskim](docs/DEVELOPMENT.md).
 
 ## Licencja
 
