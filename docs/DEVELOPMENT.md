@@ -87,7 +87,9 @@ The intended release artifacts are:
 - `kanarek-<version>.apk` for the play flavor,
 - `kanarek-<version>-foss.apk` for the GMS-free flavor.
 
-`app/build.gradle.kts` is the version source of truth. Before a new release, bump `versionName` and increase `versionCode`, then merge that change to `main`. The standalone release/signing automation is still being migrated from the old repository.
+`app/build.gradle.kts` is the version source of truth. Standalone release tags use `v<versionName>`, matching the migrated `v1.0.0` and `v1.0.1` tags and the F-Droid metadata. Before a new release, bump `versionName` and increase `versionCode`, merge that change to `main`, then tag the release commit with the matching `v<versionName>` tag.
+
+The signing/publishing automation is still being migrated from the old repository. When that workflow moves here, it must use the standalone `v<versionName>` convention rather than the old monorepo-only `kanarek-v<versionName>` tag prefix.
 
 Further reading:
 
