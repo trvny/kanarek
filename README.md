@@ -10,7 +10,6 @@
 
 [![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml)
 [![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=white&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-FFC107?style=flat-square&logo=kotlin&logoColor=white)](gradle/libs.versions.toml)
 [![license](https://img.shields.io/github/license/trvny/kanarek?color=FFC107&style=flat-square)](LICENSE)
 
 </div>
@@ -46,7 +45,7 @@ An optional Cloudflare Worker accelerates fetching and provides additional netwo
 
 ## Install
 
-Ready-made APKs are published under [GitHub Releases](https://github.com/trvny/kanarek/releases).
+Historical APKs remain available under the old [trvny/feeds releases](https://github.com/trvny/feeds/releases). Future standalone releases will be published under [trvny/kanarek releases](https://github.com/trvny/kanarek/releases).
 
 - `play`: includes Google Cast support,
 - `foss`: GMS-free build intended for FOSS and F-Droid environments.
@@ -76,10 +75,9 @@ was extracted into this repository with its full history.
 
 ## Development
 
-The shortest local path is:
+The Gradle wrapper scripts are intentionally not committed. On a fresh clone, bootstrap the exact Gradle version declared by `gradle/wrapper/gradle-wrapper.properties` as described in the [development guide](docs/DEVELOPMENT.md) and active Android CI workflow, then run:
 
 ```bash
-gradle wrapper --gradle-version 9.6.1
 ./gradlew assembleDebug
 ./gradlew testPlayDebugUnitTest
 ```
