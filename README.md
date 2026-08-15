@@ -8,12 +8,11 @@
 
 **Android news reader and widget with a background radio/IPTV player.**
 
-[![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml)
-[![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml)
-![Kotlin](https://img.shields.io/badge/Kotlin-FFC107?logo=kotlin&logoColor=111&style=flat-square)
-![Cloudflare Worker](https://img.shields.io/badge/Worker-FFC107?logo=cloudflareworkers&logoColor=111&style=flat-square)
+[![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml) ![Kotlin](https://img.shields.io/badge/Kotlin-FFC107?logo=kotlin&logoColor=111&style=flat-square)
+[![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml) ![Cloudflare Worker](https://img.shields.io/badge/Worker-FFC107?logo=cloudflareworkers&logoColor=111&style=flat-square)
 [![last commit](https://img.shields.io/github/last-commit/trvny/kanarek?color=FFC107&logo=git&logoColor=111&style=flat-square)](https://github.com/trvny/kanarek/commits/main)
 [![license](https://img.shields.io/github/license/trvny/kanarek?color=FFC107&style=flat-square)](LICENSE)
+<a href="https://deepwiki.com/trvny/kanarek"><img src="https://deepwiki.com/badge.svg" alt="DeepWiki"></a>
 
 </div>
 
@@ -91,6 +90,7 @@ gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 
 OS-specific setup and the CI-equivalent bootstrap are described in the [development guide](docs/DEVELOPMENT.md).
 
-## License
+## [License](LICENSE)
 
-The project is provided under the terms described in [LICENSE](LICENSE).
+[![License](https://www.shieldcn.dev/github/license/trvny/feeds.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
+
