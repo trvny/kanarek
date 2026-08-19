@@ -3,7 +3,7 @@ package com.kanarek.ui
 import com.kanarek.data.ArticleListFilter
 import com.kanarek.data.NewsItem
 
-internal data class ReaderFilterState(
+data class ReaderFilterState(
     val filter: ArticleListFilter = ArticleListFilter.ALL,
     val query: String = "",
     val sources: Set<String> = emptySet(),
@@ -25,7 +25,7 @@ internal data class ReaderFilterState(
     }
 }
 
-internal fun readerSourceOptions(
+fun readerSourceOptions(
     feedItems: List<NewsItem>,
     savedArticles: List<NewsItem>,
     selectedSources: Set<String>,
