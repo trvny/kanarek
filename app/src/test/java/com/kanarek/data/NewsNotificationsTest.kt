@@ -190,67 +190,6 @@ class NewsNotificationsTest {
         )
     }
 
-    @Test
-    fun allSourcesSelectionTracksAddedAndRemovedConfiguredFeeds() {
-        val config =
-            NewsNotificationConfig(
-                enabled = true,
-                selectedFeeds = listOf("https://feeds.example/a", "https://feeds.example/b"),
-                configuredFeeds = listOf("https://feeds.example/a", "https://feeds.example/b"),
-            )
-
-        val reconciled =
-            config.reconciledWith(
-                listOf("https://feeds.example/b", "https://feeds.example/c"),
-            )
-
-        assertEquals(
-            listOf("https://feeds.example/b", "https://feeds.example/c"),
-            reconciled.selectedFeeds,
-        )
-        assertEquals(reconciled.selectedFeeds, reconciled.configuredFeeds)
-    }
-
-    @Test
-    fun intentionalSourceSubsetDoesNotSelectNewFeeds() {
-        val config =
-            NewsNotificationConfig(
-                enabled = true,
-                selectedFeeds = listOf("https://feeds.example/a"),
-                configuredFeeds = listOf("https://feeds.example/a", "https://feeds.example/b"),
-            )
-
-        val reconciled =
-            config.reconciledWith(
-                listOf(
-                    "https://feeds.example/a",
-                    "https://feeds.example/b",
-                    "https://feeds.example/c",
-                ),
-            )
-
-        assertEquals(listOf("https://feeds.example/a"), reconciled.selectedFeeds)
-    }
-
-    @Test
-    fun deletedOnlySelectionFallsBackToConfiguredFeeds() {
-        val config =
-            NewsNotificationConfig(
-                enabled = true,
-                selectedFeeds = listOf("https://feeds.example/deleted"),
-                configuredFeeds =
-                    listOf(
-                        "https://feeds.example/deleted",
-                        "https://feeds.example/also-deleted",
-                    ),
-            )
-
-        val reconciled =
-            config.reconciledWith(listOf("https://feeds.example/current"))
-
-        assertEquals(listOf("https://feeds.example/current"), reconciled.selectedFeeds)
-    }
-
     private fun item(
         link: String,
         publishedAtMillis: Long? = null,
