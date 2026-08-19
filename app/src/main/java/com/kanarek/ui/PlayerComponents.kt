@@ -726,7 +726,7 @@ private fun StationRow(
             }
             if (showGroupSubtitle && !station.groupTitle.isNullOrBlank()) {
                 Text(
-                    station.groupTitle,
+                    station.groupTitle.orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     color =
                         if (isCurrent) {
