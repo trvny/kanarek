@@ -1,8 +1,8 @@
 package com.kanarek.data
 
 /**
- * Pure merge helpers for the combined news list. No Android deps, so it's
- * JVM-unit-tested directly (see NewsMergeTest).
+ * Pure merge helpers for the combined news list. No platform dependencies, so it is
+ * shared between Android and future iOS clients and tested from commonTest.
  */
 object NewsMerge {
     /**

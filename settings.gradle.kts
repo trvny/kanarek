@@ -31,3 +31,4 @@ if (System.getenv("CODEQL_ACTION_VERSION") != null) {
 
 rootProject.name = "kanarek"
 include(":app")
+include(":shared")
