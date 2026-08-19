@@ -276,7 +276,7 @@ private fun StationSearchResult(
             )
             if (!station.groupTitle.isNullOrBlank()) {
                 Text(
-                    station.groupTitle,
+                    station.groupTitle.orEmpty(),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
