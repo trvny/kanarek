@@ -3,82 +3,6 @@ package com.kanarek.data
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
 
-enum class ArticleListFilter { ALL, UNREAD, SAVED }
-
-data class ArticleState(
-    val readIds: Set<String> = emptySet(),
-    val savedArticles: List<NewsItem> = emptyList(),
-    val hiddenIds: Set<String> = emptySet(),
-    val offlineArticles: Map<String, OfflineArticleContent> = emptyMap(),
-) {
-    val savedIds: Set<String> = savedArticles.mapTo(linkedSetOf()) { ArticleStates.id(it) }
-    val offlineArticleBytes: Long =
-        offlineArticles.values.sumOf { SavedArticleCodec.offlineStorageBytes(it) }
-
-    fun isRead(item: NewsItem): Boolean = ArticleStates.id(item) in readIds
-
-    fun isSaved(item: NewsItem): Boolean = ArticleStates.id(item) in savedIds
-
-    fun offlineArticle(item: NewsItem): OfflineArticleContent? = offlineArticles[ArticleStates.id(item)]
-}
-
-/** Plain reader text persisted with a saved-article snapshot. It is rendered as text, never HTML. */
-data class OfflineArticleContent(
-    val title: String,
-    val author: String?,
-    val imageUrl: String?,
-    val content: String,
-    val wordCount: Int,
-    val storedAtMillis: Long,
-) {
-    fun asCleanArticle(): CleanArticle =
-        CleanArticle(
-            title = title,
-            author = author,
-            imageUrl = imageUrl,
-            content = content,
-            wordCount = wordCount,
-        )
-}
-
-object ArticleStates {
-    fun id(item: NewsItem): String = item.link.trim()
-
-    fun visible(
-        feedItems: List<NewsItem>,
-        state: ArticleState,
-        filter: ArticleListFilter,
-        query: String = "",
-        sources: Set<String> = emptySet(),
-    ): List<NewsItem> {
-        val candidates =
-            when (filter) {
-                ArticleListFilter.SAVED -> state.savedArticles.sortedByDescending { it.publishedAtMillis ?: 0L }
-                ArticleListFilter.ALL,
-                ArticleListFilter.UNREAD,
-                -> feedItems
-            }
-        val normalizedQuery = query.trim()
-        val normalizedSources =
-            sources
-                .map(::sourceKey)
-                .filterTo(linkedSetOf(), String::isNotEmpty)
-
-        return candidates
-            .distinctBy(::id)
-            .filterNot { id(it) in state.hiddenIds }
-            .filter { filter != ArticleListFilter.UNREAD || id(it) !in state.readIds }
-            .filter { normalizedSources.isEmpty() || sourceKey(it.source) in normalizedSources }
-            .filter { item ->
-                normalizedQuery.isEmpty() ||
-                    sequenceOf(item.title, item.source, item.summary)
-                        .any { it.contains(normalizedQuery, ignoreCase = true) }
-            }
-    }
-
-    private fun sourceKey(source: String): String = source.trim().lowercase()
-}
-
 internal data class SavedArticleRecord(
     val item: NewsItem,
     val savedAtMillis: Long,
@@ -201,8 +125,7 @@ internal object ArticleIdHistory {
             .sortedWith(
                 compareByDescending<TimedArticleId>(TimedArticleId::touchedAtMillis)
                     .thenBy(TimedArticleId::id),
-            )
-            .take(maxCount)
+            ).take(maxCount)
             .mapTo(linkedSetOf(), ::encode)
     }
 
@@ -288,16 +211,7 @@ internal object SavedArticleCodec {
                 )
             }
 
-    /** Persisted byte cost added by the Base64-encoded offline fields in a v2 record. */
-    fun offlineStorageBytes(offline: OfflineArticleContent): Long =
-        (
-            offline.storedAtMillis.toString().length +
-                encodeText(offline.title).length +
-                encodeText(offline.author.orEmpty()).length +
-                encodeText(offline.imageUrl.orEmpty()).length +
-                encodeText(offline.content).length +
-                offline.wordCount.toString().length
-        ).toLong()
+    fun offlineStorageBytes(offline: OfflineArticleContent): Long = offlineArticleStorageBytes(offline)
 
     private fun decodeCurrent(record: String): SavedArticleRecord? {
         val fields = record.split('|', limit = 14)
