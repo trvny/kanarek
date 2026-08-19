@@ -23,7 +23,7 @@ object NewsMerge {
                 out.add(item)
                 continue
             }
-            val n = counts.getOrDefault(key, 0)
+            val n = counts[key] ?: 0
             if (n < cap) {
                 counts[key] = n + 1
                 out.add(item)
