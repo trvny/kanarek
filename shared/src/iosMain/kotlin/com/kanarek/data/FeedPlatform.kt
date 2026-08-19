@@ -1,14 +1,11 @@
 package com.kanarek.data
 
-import platform.Foundation.NSLocale
-
 internal actual fun parseFeedDate(value: String): Long? =
     parseIsoDateTime(value)
         ?: parseRfcDateTime(value)
         ?: parseLocalDate(value)
 
-internal actual fun platformLanguage(): String =
-    NSLocale.currentLocale.languageCode?.substringBefore('-') ?: "en"
+internal actual fun platformLanguage(): String = "en"
 
 private val ISO_DATE_TIME =
     Regex(
