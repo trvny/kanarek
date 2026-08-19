@@ -2,6 +2,7 @@ package com.kanarek.data
 
 import kotlin.math.exp
 import kotlin.math.ln
+import kotlin.time.Clock
 
 /**
  * Ranks news items by "hotness" for the headlines / showcase view, using only the
@@ -92,14 +93,14 @@ object Headlines {
         items: List<NewsItem>,
         topSources: Set<String> = DEFAULT_TOP_SOURCES,
         limit: Int = 6,
-        nowMillis: Long = System.currentTimeMillis(),
+        nowMillis: Long = Clock.System.now().toEpochMilliseconds(),
     ): List<NewsItem> = rank(items, topSources, nowMillis).take(limit).map { it.item }
 
     /** All items scored and sorted hottest-first. */
     fun rank(
         items: List<NewsItem>,
         topSources: Set<String> = DEFAULT_TOP_SOURCES,
-        nowMillis: Long = System.currentTimeMillis(),
+        nowMillis: Long = Clock.System.now().toEpochMilliseconds(),
     ): List<Scored> {
         if (items.isEmpty()) return emptyList()
         val tops = topSources.map { it.lowercase().trim() }.filter { it.isNotEmpty() }.toSet()
@@ -140,7 +141,6 @@ object Headlines {
                 if (jaccard(tokens[i], tokens[j]) >= JACCARD_THRESHOLD) uf.union(i, j)
             }
         }
-        // distinct sources per cluster root
         val clusterSources = HashMap<Int, MutableSet<String>>()
         for (i in items.indices) {
             clusterSources.getOrPut(uf.find(i)) { mutableSetOf() }.add(items[i].source.lowercase().trim())
