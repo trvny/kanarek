@@ -1,19 +1,14 @@
 package com.kanarek.data
 
-import java.net.URI
-import java.security.MessageDigest
-
 /**
- * Minimal M3U/M3U8 playlist reader/writer for IPTV channels and internet radio stations — pure
- * Kotlin, no Android deps (mirrors [Opml]). Understands the common `#EXTINF` extension used by
- * IPTV lists (`tvg-id`, `tvg-logo`, `group-title`, `user-agent`, `referrer`) plus VLC-style per-stream
- * `#EXTVLCOPT:http-user-agent=`/`#EXTVLCOPT:http-referrer=` lines as a fallback for lists that
- * only carry headers that way; tolerant of malformed/minimal input — it never throws, it just
- * returns whatever entries it could find. This is also the on-disk/DataStore station-list
- * encoding (see `SettingsStore.stations`), so persistence and import/export share one format.
+ * Minimal M3U/M3U8 playlist reader/writer for IPTV channels and internet radio stations.
+ * Understands common `#EXTINF` attributes plus VLC-style per-stream header lines and tolerates
+ * malformed/minimal input by returning whatever entries it can parse.
  */
 object M3uCodec {
     private val ATTR = Regex("""([\w-]+)\s*=\s*"([^"]*)"""")
+    private val URL_HOST =
+        Regex("""^[A-Za-z][A-Za-z0-9+.-]*://(?:[^@/?#]*@)?(\[[^]]+]|[^:/?#]+)""")
 
     /** Parse M3U/M3U8 text into a station list, de-duped by stream URL (first occurrence wins). */
     fun parse(text: String): List<Station> {
@@ -34,13 +29,9 @@ object M3uCodec {
                     val attrsPart: String
                     val title: String
                     if (lastQuote >= 0) {
-                        // Attributes are always quoted and come first, so everything after the
-                        // last quote is the title — robust even if a quoted value (e.g.
-                        // group-title="News, Sports") itself contains a comma.
                         attrsPart = body.substring(0, lastQuote + 1)
                         title = body.substring(lastQuote + 1).removePrefix(",").trim()
                     } else {
-                        // No quoted attributes: plain "duration,Title" form.
                         val comma = body.indexOf(',')
                         attrsPart = if (comma >= 0) body.substring(0, comma) else body
                         title = if (comma >= 0) body.substring(comma + 1).trim() else ""
@@ -59,8 +50,6 @@ object M3uCodec {
                 }
 
                 line.startsWith("#EXTVLCOPT", ignoreCase = true) -> {
-                    // VLC-style per-stream header options — fallback/override for lists that
-                    // don't also repeat user-agent/referrer as quoted #EXTINF attributes.
                     val body = line.substringAfter(':', missingDelimiterValue = "")
                     val eq = body.indexOf('=')
                     if (eq > 0) {
@@ -76,16 +65,11 @@ object M3uCodec {
 
                 line.startsWith("#EXTGRP:", ignoreCase = true) ||
                     line.startsWith("#EXTALB:", ignoreCase = true) -> {
-                    // Some radio playlists put the station family/category on its own line rather
-                    // than in EXTINF's group-title attribute. Keep an explicit group-title when one
-                    // exists; otherwise accept EXTGRP (standard-ish) and EXTALB (common in exports).
                     val value = line.substringAfter(':', missingDelimiterValue = "").trim()
                     if (pendingGroup.isNullOrBlank() && value.isNotEmpty()) pendingGroup = value
                 }
 
-                line.startsWith("#") -> {
-                    // Other tags (#EXTM3U, artwork metadata, ...) — not needed, skip.
-                }
+                line.startsWith("#") -> Unit
 
                 else -> {
                     val url = line
@@ -119,14 +103,10 @@ object M3uCodec {
         return stations.distinctBy { it.streamUrl }
     }
 
-    /** The same stable id [parse] would assign to this URL — use when constructing a new
-     *  [Station] by hand (e.g. the "add station" dialog) so it matches what a later
-     *  persist-then-reload round-trip via [parse] produces for the same URL. */
+    /** The same stable id [parse] assigns to this URL. */
     fun idFor(url: String): String = hash(url.trim())
 
-    /** Serialize a station list to an M3U8 playlist (`#EXTM3U` + one `#EXTINF`/URL pair each,
-     *  plus `#EXTVLCOPT` header lines for entries carrying [Station.userAgent]/[Station.referrer]
-     *  so VLC-family players honor them too). */
+    /** Serialize a station list to an M3U8 playlist. */
     fun build(stations: List<Station>): String =
         buildString {
             append("#EXTM3U\n")
@@ -151,16 +131,7 @@ object M3uCodec {
             }
         }
 
-    /**
-     * Best-effort [StationKind] for an entry that carries no explicit `kanarek-kind` attribute —
-     * external IPTV/radio playlists never do, which used to dump every imported station into the
-     * "Other" tab with no video surface. Ordered checks: audio-only file extensions and
-     * radio-ish words in the name/group mean radio (checked first, since plenty of internet
-     * radios stream HLS `.m3u8` too); a `tvg-id` (the iptv-org join key) or a video
-     * manifest/container URL means TV; anything else stays UNKNOWN. Pure and deterministic so
-     * persisted lists saved before this heuristic existed get re-classified on their next read
-     * through [parse] (persistence shares this codec).
-     */
+    /** Best-effort stream kind when no explicit `kanarek-kind` attribute is present. */
     fun inferKind(
         name: String?,
         groupTitle: String?,
@@ -180,7 +151,6 @@ object M3uCodec {
 
     private val RADIO_WORD = Regex("""(^|[^\p{L}])(radio|radia|radiowa|fm)([^\p{L}]|$)""")
 
-    /** Map a `kanarek-kind` attribute value to a [StationKind]; anything unrecognized is UNKNOWN. */
     private fun kindOf(raw: String?): StationKind =
         when (raw?.trim()?.lowercase()) {
             "tv" -> StationKind.TV
@@ -188,7 +158,6 @@ object M3uCodec {
             else -> StationKind.UNKNOWN
         }
 
-    /** The attribute value to serialize for a kind, or null for UNKNOWN (omit the attr entirely). */
     private fun kindTag(kind: StationKind): String? =
         when (kind) {
             StationKind.TV -> "tv"
@@ -196,16 +165,19 @@ object M3uCodec {
             StationKind.UNKNOWN -> null
         }
 
-    /** A friendly fallback label when a line has no `#EXTINF` title: the URL's host, or the URL. */
-    private fun labelOf(url: String): String =
-        runCatching { URI(url).host?.removePrefix("www.") }.getOrNull()?.takeIf { it.isNotBlank() } ?: url
+    private fun labelOf(url: String): String {
+        val host =
+            URL_HOST
+                .find(url.trim())
+                ?.groupValues
+                ?.getOrNull(1)
+                ?.removePrefix("[")
+                ?.removeSuffix("]")
+                ?.removePrefix("www.")
+        return host?.takeIf { it.isNotBlank() } ?: url
+    }
 
-    /** M3U has no formal escaping — strip characters that would corrupt the line structure. */
     private fun clean(s: String): String = s.replace("\"", "").replace("\n", " ").trim()
 
-    private fun hash(s: String): String =
-        MessageDigest
-            .getInstance("SHA-1")
-            .digest(s.toByteArray())
-            .joinToString("") { "%02x".format(it.toInt() and 0xFF) }
+    private fun hash(s: String): String = sha1Hex(s)
 }
