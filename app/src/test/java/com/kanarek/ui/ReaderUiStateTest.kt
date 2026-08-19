@@ -4,34 +4,10 @@ import com.kanarek.data.ArticleListFilter
 import com.kanarek.data.NewsItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ReaderUiStateTest {
-    @Test
-    fun articleBackReturnsToReaderAndClearsSelection() {
-        val article = item("https://example.com/article")
-
-        val opened = ReaderNavigationState().openArticle(article)
-        val returned = opened.back()
-
-        assertEquals(ReaderRoute.ARTICLE, opened.route)
-        assertEquals(article, opened.selectedArticle)
-        assertEquals(ReaderRoute.READER, returned.route)
-        assertNull(returned.selectedArticle)
-    }
-
-    @Test
-    fun nestedSettingsPagesBackToSettingsBeforeReader() {
-        val storage = ReaderNavigationState().open(ReaderRoute.STORAGE)
-        val notifications = ReaderNavigationState().open(ReaderRoute.NOTIFICATIONS)
-
-        assertEquals(ReaderRoute.SETTINGS, storage.back().route)
-        assertEquals(ReaderRoute.SETTINGS, notifications.back().route)
-        assertEquals(ReaderRoute.READER, storage.back().back().route)
-    }
-
     @Test
     fun sourceToggleIsCaseInsensitiveAndPreservesCanonicalValue() {
         val selected = ReaderFilterState().toggleSource(" Example ")

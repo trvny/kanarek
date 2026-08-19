@@ -5,37 +5,6 @@ import androidx.compose.runtime.saveable.Saver
 import com.kanarek.data.ArticleListFilter
 import com.kanarek.data.NewsItem
 
-internal enum class ReaderRoute {
-    READER,
-    ARTICLE,
-    SETTINGS,
-    STORAGE,
-    NOTIFICATIONS,
-}
-
-internal data class ReaderNavigationState(
-    val route: ReaderRoute = ReaderRoute.READER,
-    val selectedArticle: NewsItem? = null,
-) {
-    fun openArticle(item: NewsItem): ReaderNavigationState =
-        copy(route = ReaderRoute.ARTICLE, selectedArticle = item)
-
-    fun open(route: ReaderRoute): ReaderNavigationState =
-        copy(route = route, selectedArticle = null)
-
-    fun back(): ReaderNavigationState =
-        when (route) {
-            ReaderRoute.STORAGE,
-            ReaderRoute.NOTIFICATIONS,
-            -> copy(route = ReaderRoute.SETTINGS, selectedArticle = null)
-
-            ReaderRoute.READER -> this
-            ReaderRoute.ARTICLE,
-            ReaderRoute.SETTINGS,
-            -> ReaderNavigationState()
-        }
-}
-
 internal data class ReaderFilterState(
     val filter: ArticleListFilter = ArticleListFilter.ALL,
     val query: String = "",
