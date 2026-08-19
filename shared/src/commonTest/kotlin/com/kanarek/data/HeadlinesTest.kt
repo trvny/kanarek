@@ -23,7 +23,7 @@ class HeadlinesTest {
 
     @Test
     fun emptyInputYieldsEmpty() {
-        assertEquals(emptyList<NewsItem>(), Headlines.rank(emptyList(), nowMillis = now))
+        assertTrue(Headlines.rank(emptyList(), nowMillis = now).isEmpty())
     }
 
     @Test
