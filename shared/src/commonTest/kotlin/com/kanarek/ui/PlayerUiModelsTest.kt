@@ -2,8 +2,8 @@ package com.kanarek.ui
 
 import com.kanarek.data.Station
 import com.kanarek.data.StationKind
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PlayerUiModelsTest {
     @Test
@@ -26,11 +26,7 @@ class PlayerUiModelsTest {
     @Test
     fun disappearingFavoritesFallBackToFirstMediaKind() {
         val tabs = listOf(StationFilter.RADIO, StationFilter.TV)
-
-        assertEquals(
-            StationFilter.RADIO,
-            validStationFilter(StationFilter.FAVORITES, tabs),
-        )
+        assertEquals(StationFilter.RADIO, validStationFilter(StationFilter.FAVORITES, tabs))
     }
 
     @Test
@@ -41,28 +37,17 @@ class PlayerUiModelsTest {
 
         assertEquals(
             StationFilter.TV,
-            playerFilterForStation(
-                station = tv,
-                selected = StationFilter.RADIO,
-                favoriteIds = emptySet(),
-                tabs = tabs,
-            ),
+            playerFilterForStation(tv, StationFilter.RADIO, emptySet(), tabs),
         )
         assertEquals(
             StationFilter.RADIO,
-            playerFilterForStation(
-                station = radio,
-                selected = StationFilter.TV,
-                favoriteIds = emptySet(),
-                tabs = tabs,
-            ),
+            playerFilterForStation(radio, StationFilter.TV, emptySet(), tabs),
         )
     }
 
     @Test
     fun favoriteCurrentStationKeepsFavoritesTab() {
         val radio = station("radio", StationKind.RADIO)
-
         assertEquals(
             StationFilter.FAVORITES,
             playerFilterForStation(
@@ -82,21 +67,11 @@ class PlayerUiModelsTest {
 
         assertEquals(
             listOf(tv),
-            visibleStations(
-                stations = stations,
-                favoriteIds = emptySet(),
-                filter = StationFilter.TV,
-                showTabs = true,
-            ),
+            visibleStations(stations, emptySet(), StationFilter.TV, showTabs = true),
         )
         assertEquals(
             stations,
-            visibleStations(
-                stations = stations,
-                favoriteIds = emptySet(),
-                filter = StationFilter.TV,
-                showTabs = false,
-            ),
+            visibleStations(stations, emptySet(), StationFilter.TV, showTabs = false),
         )
     }
 
