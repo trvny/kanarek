@@ -57,3 +57,21 @@ data class NewsNotificationConfig(
                 .distinct()
     }
 }
+
+object NewsNotificationSchedule {
+    fun isQuietTime(
+        minuteOfDay: Int,
+        startMinute: Int,
+        endMinute: Int,
+    ): Boolean {
+        val minute = minuteOfDay.coerceIn(0, NewsNotificationConfig.MINUTES_PER_DAY - 1)
+        val start = startMinute.coerceIn(0, NewsNotificationConfig.MINUTES_PER_DAY - 1)
+        val end = endMinute.coerceIn(0, NewsNotificationConfig.MINUTES_PER_DAY - 1)
+        if (start == end) return false
+        return if (start < end) {
+            minute in start until end
+        } else {
+            minute >= start || minute < end
+        }
+    }
+}

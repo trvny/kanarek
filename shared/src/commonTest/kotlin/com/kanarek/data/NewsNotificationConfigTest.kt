@@ -2,6 +2,8 @@ package com.kanarek.data
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class NewsNotificationConfigTest {
     @Test
@@ -79,5 +81,14 @@ class NewsNotificationConfigTest {
         assertEquals(listOf("https://feeds.example/b"), normalized.configuredFeeds)
         assertEquals(0, normalized.quietStartMinute)
         assertEquals(NewsNotificationConfig.MINUTES_PER_DAY - 1, normalized.quietEndMinute)
+    }
+
+    @Test
+    fun quietHoursWrapAcrossMidnight() {
+        assertTrue(NewsNotificationSchedule.isQuietTime(23 * 60, 22 * 60, 7 * 60))
+        assertTrue(NewsNotificationSchedule.isQuietTime(6 * 60 + 59, 22 * 60, 7 * 60))
+        assertFalse(NewsNotificationSchedule.isQuietTime(7 * 60, 22 * 60, 7 * 60))
+        assertFalse(NewsNotificationSchedule.isQuietTime(12 * 60, 22 * 60, 7 * 60))
+        assertFalse(NewsNotificationSchedule.isQuietTime(12 * 60, 12 * 60, 12 * 60))
     }
 }
