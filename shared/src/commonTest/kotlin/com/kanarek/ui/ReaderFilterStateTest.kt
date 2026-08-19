@@ -2,12 +2,12 @@ package com.kanarek.ui
 
 import com.kanarek.data.ArticleListFilter
 import com.kanarek.data.NewsItem
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-class ReaderUiStateTest {
+class ReaderFilterStateTest {
     @Test
     fun sourceToggleIsCaseInsensitiveAndPreservesCanonicalValue() {
         val selected = ReaderFilterState().toggleSource(" Example ")
@@ -21,11 +21,7 @@ class ReaderUiStateTest {
 
     @Test
     fun queryAndArticleFilterRemainIndependent() {
-        val state =
-            ReaderFilterState(
-                filter = ArticleListFilter.SAVED,
-                query = "  space  ",
-            )
+        val state = ReaderFilterState(filter = ArticleListFilter.SAVED, query = "  space  ")
 
         assertEquals(ArticleListFilter.SAVED, state.filter)
         assertTrue(state.hasSearchFilters)

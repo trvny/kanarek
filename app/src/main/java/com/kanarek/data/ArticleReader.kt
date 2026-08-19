@@ -7,15 +7,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
-/** Plain-text article body returned by the Worker's safe reader endpoint. */
-data class CleanArticle(
-    val title: String,
-    val author: String?,
-    val imageUrl: String?,
-    val content: String,
-    val wordCount: Int,
-)
-
 /** Only an explicitly configured public HTTP(S) backend may receive opened article URLs. */
 internal fun configuredReaderBackend(raw: String): String? =
     raw.trim()
