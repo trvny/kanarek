@@ -1,10 +1,10 @@
 package com.kanarek.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-/** Pure-JVM unit tests for the multi-playlist container codec — no Android deps. */
+/** Shared tests for the multi-playlist container codec. */
 class PlaylistsTest {
     private fun s(
         name: String,
@@ -27,7 +27,7 @@ class PlaylistsTest {
     @Test
     fun sectionIsValidStandaloneM3u() {
         val built = Playlists.build(listOf(Playlists.Named("Radio", listOf(s("A", "https://x/a.mp3")))))
-        val body = built.lines().drop(1).joinToString("\n") // strip the marker line
+        val body = built.lines().drop(1).joinToString("\n")
         assertEquals(listOf("https://x/a.mp3"), M3uCodec.parse(body).map { it.streamUrl })
     }
 

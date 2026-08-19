@@ -1,12 +1,10 @@
 package com.kanarek.data
 
 /**
- * Container codec for multiple named playlists — pure Kotlin, no Android deps (mirrors [Opml]
- * and [M3uCodec]). The container is plain text: `#KANAREK-PLAYLIST:<name>` section markers, each
- * followed by that playlist's ordinary M3U text. Round-trips through [M3uCodec] per section, so
- * a single playlist extracted from the container is a valid standalone M3U file and vice versa.
- * Tolerant of malformed input — unnamed leading content is ignored, duplicate names keep the
- * last occurrence (later writes win).
+ * Container codec for multiple named playlists. The container is plain text:
+ * `#KANAREK-PLAYLIST:<name>` section markers followed by ordinary M3U text. Each section
+ * round-trips through [M3uCodec]. Malformed leading content is ignored and duplicate names keep
+ * the last occurrence.
  */
 object Playlists {
     data class Named(
