@@ -69,8 +69,8 @@ jobs:
         # Flavor-qualified tasks: with product flavors (play/foss) AGP no longer creates
         # plain testDebugUnitTest/lintDebug. Unit tests and lint run on play (superset of
         # sources); fossDebug is assembled too so a GMS reference leaking into main/foss
-        # sources fails CI immediately.
-        run: ./gradlew assemblePlayDebug assembleFossDebug testPlayDebugUnitTest lintPlayDebug --stacktrace
+        # sources fails CI immediately. Shared common tests run on the Android host target.
+        run: ./gradlew assemblePlayDebug assembleFossDebug testPlayDebugUnitTest :shared:testAndroidHostTest lintPlayDebug --stacktrace
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v7

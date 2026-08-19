@@ -1,7 +1,7 @@
 package com.kanarek.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class NewsMergeTest {
     private fun item(source: String, ms: Long) =
