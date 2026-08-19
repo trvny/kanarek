@@ -11,8 +11,8 @@ kotlin {
         compileSdk = 37
         minSdk = 26
         withHostTestBuilder {}
-        compilerOptions.configure {
-            jvmTarget.set(JvmTarget.JVM_17)
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
         }
     }
 
