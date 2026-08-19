@@ -45,6 +45,7 @@ class FeedParserTest {
         val xml =
             """
             <rss><channel>
+              <title></title>
               <item><title>t</title><link>https://www.example.com/story</link></item>
             </channel></rss>
             """.trimIndent()
