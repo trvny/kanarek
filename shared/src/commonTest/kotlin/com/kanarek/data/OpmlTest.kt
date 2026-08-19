@@ -1,10 +1,10 @@
 package com.kanarek.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-/** Pure-JVM unit tests for OPML import/export — no Android deps. */
+/** Shared tests for OPML import/export. */
 class OpmlTest {
     @Test
     fun parsesXmlUrlDoubleAndSingleQuotes() {

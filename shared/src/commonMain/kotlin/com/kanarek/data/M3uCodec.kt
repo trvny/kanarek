@@ -7,8 +7,6 @@ package com.kanarek.data
  */
 object M3uCodec {
     private val ATTR = Regex("""([\w-]+)\s*=\s*"([^"]*)"""")
-    private val URL_HOST =
-        Regex("""^[A-Za-z][A-Za-z0-9+.-]*://(?:[^@/?#]*@)?(\[[^]]+]|[^:/?#]+)""")
 
     /** Parse M3U/M3U8 text into a station list, de-duped by stream URL (first occurrence wins). */
     fun parse(text: String): List<Station> {
@@ -165,17 +163,7 @@ object M3uCodec {
             StationKind.UNKNOWN -> null
         }
 
-    private fun labelOf(url: String): String {
-        val host =
-            URL_HOST
-                .find(url.trim())
-                ?.groupValues
-                ?.getOrNull(1)
-                ?.removePrefix("[")
-                ?.removeSuffix("]")
-                ?.removePrefix("www.")
-        return host?.takeIf { it.isNotBlank() } ?: url
-    }
+    private fun labelOf(url: String): String = urlHostLabel(url) ?: url
 
     private fun clean(s: String): String = s.replace("\"", "").replace("\n", " ").trim()
 
