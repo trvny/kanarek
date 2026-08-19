@@ -1,8 +1,8 @@
 package com.kanarek.data
 
-internal enum class ReaderRefreshScheduleAction { SCHEDULE, CANCEL }
+enum class ReaderRefreshScheduleAction { SCHEDULE, CANCEL }
 
-internal object ReaderBackgroundRefresh {
+object ReaderBackgroundRefresh {
     const val OFF = 0
     const val MINUTES_30 = 30
     const val HOUR_1 = 60
