@@ -1,14 +1,11 @@
 package com.kanarek.data
 
-import java.net.URI
-
 /**
- * Minimal OPML 2.0 reader/writer for feed lists — pure Kotlin, no Android deps (mirrors FeedParser).
+ * Minimal OPML 2.0 reader/writer for feed lists.
  *
- * Import pulls every `xmlUrl` attribute (the standard place a feed URL lives in an OPML outline),
- * order-preserving and de-duplicated; nested folders are flattened. Export wraps the current feed
- * list in a flat OPML body. Tolerant of slightly malformed files — it never throws on bad input,
- * it just returns whatever URLs it could find.
+ * Import pulls every `xmlUrl` attribute, preserves order and de-duplicates entries; nested folders
+ * are flattened. Export wraps the current feed list in a flat OPML body. Malformed input is
+ * tolerated by returning whatever URLs can be extracted.
  */
 object Opml {
     private val XML_URL =
@@ -51,11 +48,7 @@ object Opml {
             append("</opml>\n")
         }
 
-    /** A friendly outline label: the feed's host without `www.`, falling back to the URL. */
-    private fun labelOf(url: String): String =
-        runCatching { URI(url).host?.removePrefix("www.") }
-            .getOrNull()
-            ?.takeIf { it.isNotBlank() } ?: url
+    private fun labelOf(url: String): String = urlHostLabel(url) ?: url
 
     private fun escape(s: String): String =
         s
