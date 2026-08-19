@@ -1,15 +1,6 @@
 package com.kanarek.data
 
-import java.time.Instant
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeFormatterBuilder
-import java.time.format.SignStyle
-import java.time.temporal.ChronoField
-import java.util.Locale
+import kotlin.time.Clock
 
 /**
  * Minimal RSS 2.0 / Atom parser. Regex-based, no DOM — good enough for
@@ -50,7 +41,7 @@ object FeedParser {
                 link = link,
                 summary = summary,
                 imageUrl = imageOf(block),
-                source = source.ifBlank { hostOf(link) },
+                source = source.ifBlank { urlHostLabel(link).orEmpty() },
                 publishedAtMillis = parseDate(dateStr),
             )
         }
@@ -79,8 +70,10 @@ object FeedParser {
                 "<link[^>]*href=[\"']([^\"']+)[\"'][^>]*rel=[\"']alternate[\"']",
                 "<link[^>]*href=[\"']([^\"']+)[\"']",
             )
-        for (p in patterns) {
-            Regex(p, RegexOption.IGNORE_CASE).find(block)?.let { return decode(it.groupValues[1]).trim() }
+        for (pattern in patterns) {
+            Regex(pattern, RegexOption.IGNORE_CASE).find(block)?.let {
+                return decode(it.groupValues[1]).trim()
+            }
         }
         return null
     }
@@ -94,13 +87,18 @@ object FeedParser {
                 "<image>[\\s\\S]*?<url>([\\s\\S]*?)</url>",
                 "<img[^>]*src=[\"']([^\"']+)[\"']",
             )
-        for (p in patterns) {
-            Regex(p, RegexOption.IGNORE_CASE).find(block)?.let { return decode(it.groupValues[1]).trim() }
+        for (pattern in patterns) {
+            Regex(pattern, RegexOption.IGNORE_CASE).find(block)?.let {
+                return decode(it.groupValues[1]).trim()
+            }
         }
         return null
     }
 
-    private fun stripTags(s: String): String = s.replace(Regex("<[^>]+>"), " ").replace(Regex("\\s+"), " ").trim()
+    private fun stripTags(s: String): String =
+        s.replace(Regex("<[^>]+>"), " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
 
     private fun decode(s: String): String =
         s
@@ -128,43 +126,26 @@ object FeedParser {
                 }.getOrDefault("")
             }.replace("&amp;", "&")
 
-    private fun hostOf(link: String): String =
-        runCatching {
-            java.net
-                .URI(link)
-                .host
-                ?.removePrefix("www.") ?: ""
-        }.getOrDefault("")
+    private fun parseDate(s: String?): Long? =
+        textOf(s)
+            ?.trim()
+            ?.takeIf(String::isNotEmpty)
+            ?.let(::parseFeedDate)
 
-    /** Thread-safe java.time parsing; FeedParser is called concurrently for several sources. */
-    private fun parseDate(s: String?): Long? {
-        val value = textOf(s)?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-        return runCatching { Instant.parse(value).toEpochMilli() }.getOrNull()
-            ?: runCatching { OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant().toEpochMilli() }.getOrNull()
-            ?: runCatching { OffsetDateTime.parse(value, RFC_OFFSET).toInstant().toEpochMilli() }.getOrNull()
-            ?: runCatching { ZonedDateTime.parse(value, RFC_ZONE).toInstant().toEpochMilli() }.getOrNull()
-            ?: runCatching { OffsetDateTime.parse(value, COMPACT_OFFSET).toInstant().toEpochMilli() }.getOrNull()
-            ?: runCatching { LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli() }
-                .getOrNull()
-    }
-
-    /**
-     * Human-readable age for the reader UI without Android dependencies. [locale] is explicit so
-     * JVM tests stay deterministic; callers normally use the current default locale.
-     */
+    /** Human-readable age for the reader UI without Android dependencies. */
     fun relativeTime(
         millis: Long?,
-        now: Long = System.currentTimeMillis(),
-        locale: Locale = Locale.getDefault(),
+        now: Long = Clock.System.now().toEpochMilliseconds(),
+        language: String = platformLanguage(),
     ): String {
         if (millis == null) return ""
         val seconds = ((now - millis).coerceAtLeast(0L)) / 1000L
-        val language = locale.language.lowercase(Locale.ROOT)
+        val normalizedLanguage = language.lowercase()
         return when {
-            seconds < 60L -> if (language == "pl") "przed chwilą" else "just now"
-            seconds < 3_600L -> formatAge(seconds / 60L, AgeUnit.MINUTE, language)
-            seconds < 86_400L -> formatAge(seconds / 3_600L, AgeUnit.HOUR, language)
-            else -> formatAge(seconds / 86_400L, AgeUnit.DAY, language)
+            seconds < 60L -> if (normalizedLanguage == "pl") "przed chwilą" else "just now"
+            seconds < 3_600L -> formatAge(seconds / 60L, AgeUnit.MINUTE, normalizedLanguage)
+            seconds < 86_400L -> formatAge(seconds / 3_600L, AgeUnit.HOUR, normalizedLanguage)
+            else -> formatAge(seconds / 86_400L, AgeUnit.DAY, normalizedLanguage)
         }
     }
 
@@ -204,22 +185,8 @@ object FeedParser {
         val last = count % 10L
         return if (last in 2L..4L && lastTwo !in 12L..14L) few else many
     }
-
-    private val RFC_OFFSET =
-        DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .appendPattern("EEE, ")
-            .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)
-            .appendPattern(" MMM yyyy HH:mm:ss Z")
-            .toFormatter(Locale.US)
-
-    private val RFC_ZONE =
-        DateTimeFormatterBuilder()
-            .parseCaseInsensitive()
-            .appendPattern("EEE, ")
-            .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)
-            .appendPattern(" MMM yyyy HH:mm:ss zzz")
-            .toFormatter(Locale.US)
-
-    private val COMPACT_OFFSET = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
 }
+
+internal expect fun parseFeedDate(value: String): Long?
+
+internal expect fun platformLanguage(): String

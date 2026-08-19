@@ -1,12 +1,10 @@
 package com.kanarek.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import java.util.Locale
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
-/** Pure-JVM unit tests for the regex RSS/Atom parser — no Android deps. */
 class FeedParserTest {
     private val rss =
         """
@@ -43,8 +41,20 @@ class FeedParserTest {
     }
 
     @Test
+    fun derivesSourceFromHostWhenChannelTitleIsMissing() {
+        val xml =
+            """
+            <rss><channel>
+              <title></title>
+              <item><title>t</title><link>https://www.example.com/story</link></item>
+            </channel></rss>
+            """.trimIndent()
+
+        assertEquals("example.com", FeedParser.parse(xml)[0].source)
+    }
+
+    @Test
     fun parsesRfc822Date() {
-        // Wed, 01 Jan 2020 00:00:00 +0000 == 1577836800000
         assertEquals(1577836800000L, FeedParser.parse(rss)[0].publishedAtMillis)
     }
 
@@ -57,6 +67,23 @@ class FeedParserTest {
             </channel></rss>
             """.trimIndent()
         assertEquals(1728302400000L, FeedParser.parse(singleDigitDay)[0].publishedAtMillis)
+    }
+
+    @Test
+    fun parsesIsoOffsetsAndLocalDate() {
+        fun date(value: String): Long? {
+            val xml =
+                """
+                <rss><channel><title>S</title>
+                  <item><title>t</title><link>https://x/1</link><pubDate>$value</pubDate></item>
+                </channel></rss>
+                """.trimIndent()
+            return FeedParser.parse(xml)[0].publishedAtMillis
+        }
+
+        assertEquals(1728295200000L, date("2024-10-07T12:00:00+02:00"))
+        assertEquals(1728295200000L, date("2024-10-07T12:00:00+0200"))
+        assertEquals(1728259200000L, date("2024-10-07"))
     }
 
     @Test
@@ -140,32 +167,31 @@ class FeedParserTest {
     @Test
     fun relativeTimeBucketsInEnglish() {
         val now = 1_000_000_000_000L
-        assertEquals("", FeedParser.relativeTime(null, now, Locale.ENGLISH))
-        assertEquals("just now", FeedParser.relativeTime(now - 30_000, now, Locale.ENGLISH))
-        assertEquals("1 minute ago", FeedParser.relativeTime(now - 60_000, now, Locale.ENGLISH))
-        assertEquals("5 minutes ago", FeedParser.relativeTime(now - 5 * 60_000, now, Locale.ENGLISH))
-        assertEquals("3 hours ago", FeedParser.relativeTime(now - 3 * 3_600_000, now, Locale.ENGLISH))
-        assertEquals("2 days ago", FeedParser.relativeTime(now - 2 * 86_400_000L, now, Locale.ENGLISH))
+        assertEquals("", FeedParser.relativeTime(null, now, "en"))
+        assertEquals("just now", FeedParser.relativeTime(now - 30_000, now, "en"))
+        assertEquals("1 minute ago", FeedParser.relativeTime(now - 60_000, now, "en"))
+        assertEquals("5 minutes ago", FeedParser.relativeTime(now - 5 * 60_000, now, "en"))
+        assertEquals("3 hours ago", FeedParser.relativeTime(now - 3 * 3_600_000, now, "en"))
+        assertEquals("2 days ago", FeedParser.relativeTime(now - 2 * 86_400_000L, now, "en"))
     }
 
     @Test
     fun relativeTimeUsesPolishForms() {
         val now = 1_000_000_000_000L
-        val polish = Locale.forLanguageTag("pl")
-        assertEquals("przed chwilą", FeedParser.relativeTime(now - 30_000, now, polish))
-        assertEquals("1 minutę temu", FeedParser.relativeTime(now - 60_000, now, polish))
-        assertEquals("2 minuty temu", FeedParser.relativeTime(now - 2 * 60_000, now, polish))
-        assertEquals("12 minut temu", FeedParser.relativeTime(now - 12 * 60_000, now, polish))
-        assertEquals("22 minuty temu", FeedParser.relativeTime(now - 22 * 60_000, now, polish))
-        assertEquals("1 godzinę temu", FeedParser.relativeTime(now - 3_600_000, now, polish))
-        assertEquals("5 godzin temu", FeedParser.relativeTime(now - 5 * 3_600_000, now, polish))
-        assertEquals("2 dni temu", FeedParser.relativeTime(now - 2 * 86_400_000L, now, polish))
+        assertEquals("przed chwilą", FeedParser.relativeTime(now - 30_000, now, "pl"))
+        assertEquals("1 minutę temu", FeedParser.relativeTime(now - 60_000, now, "pl"))
+        assertEquals("2 minuty temu", FeedParser.relativeTime(now - 2 * 60_000, now, "pl"))
+        assertEquals("12 minut temu", FeedParser.relativeTime(now - 12 * 60_000, now, "pl"))
+        assertEquals("22 minuty temu", FeedParser.relativeTime(now - 22 * 60_000, now, "pl"))
+        assertEquals("1 godzinę temu", FeedParser.relativeTime(now - 3_600_000, now, "pl"))
+        assertEquals("5 godzin temu", FeedParser.relativeTime(now - 5 * 3_600_000, now, "pl"))
+        assertEquals("2 dni temu", FeedParser.relativeTime(now - 2 * 86_400_000L, now, "pl"))
     }
 
     @Test
     fun futureDatesAreReportedAsJustNow() {
         val now = 1_000_000_000_000L
-        assertEquals("just now", FeedParser.relativeTime(now + 60_000, now, Locale.ENGLISH))
+        assertEquals("just now", FeedParser.relativeTime(now + 60_000, now, "en"))
     }
 
     @Test
