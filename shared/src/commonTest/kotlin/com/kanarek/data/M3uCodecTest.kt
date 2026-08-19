@@ -1,10 +1,10 @@
 package com.kanarek.data
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-/** Pure-JVM unit tests for M3U/M3U8 playlist import/export — no Android deps. */
+/** Shared tests for M3U/M3U8 playlist import/export. */
 class M3uCodecTest {
     @Test
     fun parsesExtinfWithLogoAndGroup() {
@@ -73,6 +73,10 @@ class M3uCodecTest {
         val a = M3uCodec.parse("#EXTINF:-1,A\nhttps://x.com/a.mp3")[0]
         val b = M3uCodec.parse("#EXTINF:-1,Renamed\nhttps://x.com/a.mp3")[0]
         assertEquals(a.id, b.id)
+        assertEquals(
+            "06ed44d9be246ecb9602668838f7d65e5dae2968",
+            M3uCodec.idFor("https://example.com/stream"),
+        )
     }
 
     @Test
@@ -109,9 +113,6 @@ class M3uCodecTest {
             #EXTVLCOPT:http-user-agent=from-vlcopt
             https://x.com/tvp1.m3u
             """.trimIndent()
-        // EXTINF is parsed first and sets pendingUserAgent; EXTVLCOPT then overwrites it since
-        // it's read afterward — assert the actually-implemented "last one wins" behavior so this
-        // stays honest about precedence if the tag order in a pasted list ever varies.
         val station = M3uCodec.parse(m3u)[0]
         assertEquals("from-vlcopt", station.userAgent)
     }
@@ -260,7 +261,6 @@ class M3uCodecTest {
         val stations = M3uCodec.parse(m3u)
         assertEquals(StationKind.TV, stations[0].kind)
         assertEquals(StationKind.RADIO, stations[1].kind)
-        // No explicit kanarek-kind: the audio extension makes this an inferred radio station.
         assertEquals(StationKind.RADIO, stations[2].kind)
     }
 
@@ -281,11 +281,11 @@ class M3uCodecTest {
             https://x/whoknows
             """.trimIndent()
         val s = M3uCodec.parse(m3u)
-        assertEquals(StationKind.TV, s[0].kind) // tvg-id present
-        assertEquals(StationKind.TV, s[1].kind) // HLS manifest, no radio signal
-        assertEquals(StationKind.RADIO, s[2].kind) // "radio" in the name beats the HLS URL
-        assertEquals(StationKind.RADIO, s[3].kind) // audio-only extension
-        assertEquals(StationKind.UNKNOWN, s[4].kind) // nothing to go on
+        assertEquals(StationKind.TV, s[0].kind)
+        assertEquals(StationKind.TV, s[1].kind)
+        assertEquals(StationKind.RADIO, s[2].kind)
+        assertEquals(StationKind.RADIO, s[3].kind)
+        assertEquals(StationKind.UNKNOWN, s[4].kind)
     }
 
     @Test
