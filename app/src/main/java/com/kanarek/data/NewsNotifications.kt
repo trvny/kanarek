@@ -76,7 +76,7 @@ internal object NewsNotifications {
             }
         val quiet =
             snapshot.config.quietHoursEnabled &&
-                isQuietTime(
+                NewsNotificationSchedule.isQuietTime(
                     minuteOfDay = snapshot.minuteOfDay,
                     startMinute = snapshot.config.quietStartMinute,
                     endMinute = snapshot.config.quietEndMinute,
@@ -99,22 +99,6 @@ internal object NewsNotifications {
                 append(alphabet[value ushr 4])
                 append(alphabet[value and 0x0f])
             }
-        }
-    }
-
-    fun isQuietTime(
-        minuteOfDay: Int,
-        startMinute: Int,
-        endMinute: Int,
-    ): Boolean {
-        val minute = minuteOfDay.coerceIn(0, NewsNotificationConfig.MINUTES_PER_DAY - 1)
-        val start = startMinute.coerceIn(0, NewsNotificationConfig.MINUTES_PER_DAY - 1)
-        val end = endMinute.coerceIn(0, NewsNotificationConfig.MINUTES_PER_DAY - 1)
-        if (start == end) return false
-        return if (start < end) {
-            minute in start until end
-        } else {
-            minute >= start || minute < end
         }
     }
 

@@ -128,15 +128,6 @@ class NewsNotificationsTest {
     }
 
     @Test
-    fun quietHoursWrapAcrossMidnight() {
-        assertTrue(NewsNotifications.isQuietTime(23 * 60, 22 * 60, 7 * 60))
-        assertTrue(NewsNotifications.isQuietTime(6 * 60 + 59, 22 * 60, 7 * 60))
-        assertFalse(NewsNotifications.isQuietTime(7 * 60, 22 * 60, 7 * 60))
-        assertFalse(NewsNotifications.isQuietTime(12 * 60, 22 * 60, 7 * 60))
-        assertFalse(NewsNotifications.isQuietTime(12 * 60, 12 * 60, 12 * 60))
-    }
-
-    @Test
     fun quietCycleMarksItemsSeenWithoutCreatingBacklog() {
         val fresh = item("https://example.com/night")
         val quietConfig = NewsNotificationConfig(enabled = true)
