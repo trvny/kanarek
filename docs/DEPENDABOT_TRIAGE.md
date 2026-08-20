@@ -1,25 +1,37 @@
-# Dependabot alert triage (2026-08-12): build-tooling-only, app not affected
+# Dependabot alert triage: build-tooling-only, app not affected
 
-> Historical snapshot from 2026-08-12. Exact package and tool versions below record what was
-> actually resolved during that investigation; they are evidence, not current build requirements.
-> For current Gradle/AGP/Kotlin versions and wrapper bootstrap, use the repository configuration
-> and `.github/workflows/android-ci.yml`.
+> First resolved 2026-08-12; **re-verified 2026-08-20** against the current toolchain
+> (AGP 9.3.1, Kotlin 2.4.10, Gradle 9.7.0) with the same conclusion. Exact package and tool
+> versions below record what was actually resolved; they are evidence, not current build
+> requirements. For current Gradle/AGP/Kotlin versions and wrapper bootstrap, use the repository
+> configuration and `.github/workflows/android-ci.yml`.
 >
-> Written while the app still lived in `trvny/feeds/kanarek/`. Paths below may retain the
-> `kanarek/` prefix from that layout; in this repository drop it (`settings.gradle.kts`,
-> `app/build.gradle.kts`). The conclusion is unaffected because it concerns the dependency graph,
-> not the directory names.
+> The original run happened while the app still lived in `trvny/feeds/kanarek/`. Paths below may
+> retain the `kanarek/` prefix from that layout; in this repository drop it
+> (`settings.gradle.kts`, `app/build.gradle.kts`). The conclusion is unaffected because it
+> concerns the dependency graph, not the directory names.
 
-45 open Dependabot `maven` alerts are attributed to `kanarek/settings.gradle.kts`, the
-only file in `kanarek/` that touches Maven dependency resolution (its
+**47 open** Dependabot `maven` alerts (45 on 2026-08-12; two added since — one more
+`io.netty:netty-codec-http` and `org.jetbrains.kotlin:kotlin-gradle-plugin`) are attributed to
+`settings.gradle.kts`, the only file that touches Maven dependency resolution (its
 `pluginManagement`/`dependencyResolutionManagement` blocks). None of the flagged
 packages are declared anywhere in `app/build.gradle.kts`; they all arrive
-transitively through Android Gradle Plugin's own tooling. **None of them reach
-`playReleaseRuntimeClasspath` or `fossReleaseRuntimeClasspath` — the configurations
-that back what actually ships in an APK — so the shipped app is not affected.**
+transitively through the Android Gradle Plugin's / Kotlin Gradle plugin's own tooling.
+**None of them reach `playReleaseRuntimeClasspath` or `fossReleaseRuntimeClasspath` — the
+configurations that back what actually ships in an APK — so the shipped app is not affected.**
 `dependency.scope` is `null` on every alert (GitHub doesn't know build-time vs
 runtime for this graph), which is why this needed manual resolution rather than a
 glance at the alert list.
+
+### Where the alerts live after the repo split
+
+The alerts are filed on **`trvny/feeds`** against `kanarek/settings.gradle.kts`. That path was
+**removed from `trvny/feeds`** when this project split out to its own repository
+(`trvny/kanarek`, 2026-08-14), so the alerts now point at a manifest that no longer exists in the
+repo they are attached to. `trvny/kanarek` itself has **0 open Dependabot alerts** — no
+dependency-submission workflow runs here, so its build-tooling graph is not tracked (which is
+harmless precisely because, as shown below, none of it ships). The dismissal decision therefore
+belongs to whoever owns the `trvny/feeds` security tab; this document is the evidence for it.
 
 ## Method
 
@@ -37,11 +49,17 @@ bootstrap the wrapper exactly as `.github/workflows/android-ci.yml` does from
   variants, the JVM unit-test classpaths (Robolectric), and the Unified Test
   Platform (UTP) configurations Gradle creates to drive `connectedAndroidTest`.
 
-Both were run locally for this triage (2026-08-12), not by CI — `android-ci.yml`
+Both were run locally for this triage, not by CI — `android-ci.yml`
 only runs its active build/test/lint command and does not invoke either dependency-report task,
 and `--stacktrace` prints exception stacktraces, not dependency trees, so no report is currently
-archived anywhere. A reproduction requires the Android SDK level declared by the current build,
-not the historical value copied into this document.
+archived anywhere.
+
+The 2026-08-20 re-verification confirmed the two dependency-report tasks resolve **without an
+Android SDK installed** (dependency resolution needs the plugin and library metadata, not the
+SDK — only the actual compile/dex/assemble tasks need it). Bootstrapping Gradle 9.7.0 and running
+`buildEnvironment`, `:app:dependencies --configuration <variant>RuntimeClasspath` for all four
+`{play,foss}{Release,Debug}RuntimeClasspath` variants, `:app:dependencies` (all configurations),
+and `:shared:dependencies` reproduced every finding below on the current toolchain.
 
 ## Findings by package family
 
@@ -50,9 +68,10 @@ not the historical value copied into this document.
 | `org.bouncycastle:bcprov-jdk18on`, `bcpkix-jdk18on` | `1.79` (via AGP's own `builder`/`apkzlib`/`signflinger` tooling and lint); `1.81` (via Robolectric's JVM unit-test graph) | `androidLintTool`, `unified-test-platform-android-test-plugin-result-listener-gradle`, `fossDebugUnitTestRuntimeClasspath`, `playDebugUnitTestRuntimeClasspath` | No |
 | `org.apache.httpcomponents:httpclient` | `4.5.6` (lint/UTP tool classpath, unresolved by the app's own conflict resolution); `4.5.6 -> 4.5.14` in the AGP plugin classpath itself | `androidLintTool`, `unified-test-platform-android-test-plugin-result-listener-gradle` | No |
 | `org.apache.commons:commons-lang3` | `3.16.0` | `androidLintTool`, `unified-test-platform-android-test-plugin-result-listener-gradle` | No |
-| `io.netty:netty-codec`, `netty-codec-http`, `netty-codec-http2`, `netty-common`, `netty-handler`, `netty-handler-proxy` | `4.1.93.Final` and `4.1.110.Final` (two different UTP sub-configurations pin different versions) | `unified-test-platform-core`, `unified-test-platform-android-test-plugin-host-emulator-control` (both are Unified Test Platform's own gRPC transport, used only to talk to a local device/emulator while running `connectedAndroidTest`) | No |
+| `io.netty:netty-codec`, `netty-codec-http`, `netty-codec-http2`, `netty-common`, `netty-handler`, `netty-handler-proxy` | `4.1.110.Final` (2026-08-20 resolution; a second UTP sub-configuration also pins `4.1.93.Final`) via `io.grpc:grpc-netty:1.69.1` | `unified-test-platform-core`, `unified-test-platform-android-test-plugin-host-emulator-control` (both are Unified Test Platform's own gRPC transport, used only to talk to a local device/emulator while running `connectedAndroidTest`) | No |
 | `org.jdom:jdom2` | `2.0.6` | AGP's own `jetifier-processor` (root buildscript `classpath`, not any `:app` configuration) | No |
 | `org.bitbucket.b_c:jose4j` | `0.9.5` | AGP's own `bundletool` (root buildscript `classpath`, not any `:app` configuration) | No |
+| `org.jetbrains.kotlin:kotlin-gradle-plugin` | `2.4.10` | The Kotlin Gradle plugin itself — the root buildscript `classpath` resolved by `buildEnvironment`. By definition a build-time plugin; it never contributes to any `:app` runtime configuration. | No |
 
 Every one of these configurations is either:
 
@@ -70,7 +89,7 @@ Every one of these configurations is either:
    `testFossDebugUnitTest`, produces no APK output at all.
 
 `playReleaseRuntimeClasspath` and `fossReleaseRuntimeClasspath` — dumped in full —
-contain **zero** matches for any of the six package families above. Same for the
+contain **zero** matches for any of the package families above. Same for the
 debug variants (`playDebugRuntimeClasspath`, `fossDebugRuntimeClasspath`), so even
 a debug APK installed for manual testing doesn't carry this code.
 
@@ -124,4 +143,4 @@ this code does execute, just not on a user's device.
 
 The table above groups by package family and establishes APK reachability only. It
 is **not** a per-advisory build-time analysis, so it does not on its own justify
-dismissing all 45 as a block — that call is the maintainer's, advisory by advisory.
+dismissing all 47 as a block — that call is the maintainer's, advisory by advisory.
