@@ -1,0 +1,1 @@
+Usprawniono filtrowanie źródeł, listę stacji, ładowanie logo i pakowanie wydań.
