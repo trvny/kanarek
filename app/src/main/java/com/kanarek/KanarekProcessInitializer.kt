@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 
 class KanarekProcessInitializer : Initializer<Unit> {
     override fun create(context: Context) {
@@ -36,7 +37,21 @@ class KanarekProcessInitializer : Initializer<Unit> {
                     ImageLoader
                         .Builder(applicationContext)
                         .components { add(SvgDecoder.Factory()) }
-                        .build()
+                        .okHttpClient {
+                            OkHttpClient
+                                .Builder()
+                                .addNetworkInterceptor { chain ->
+                                    val request =
+                                        chain
+                                            .request()
+                                            .newBuilder()
+                                            .header(
+                                                "User-Agent",
+                                                "Kanarek Android (+https://github.com/trvny/kanarek)",
+                                            ).build()
+                                    chain.proceed(request)
+                                }.build()
+                        }.build()
             },
         )
         WidgetRefreshWorker.reconcile(applicationContext)
