@@ -1,11 +1,20 @@
-name: Release
+name: Rolling release
 
 on: # yamllint disable-line rule:truthy
   push:
-    tags: ["v*"]
+    branches: ["main"]
+    paths:
+      - "app/**"
+      - "shared/**"
+      - "build.gradle.kts"
+      - "settings.gradle.kts"
+      - "gradle.properties"
+      - "gradle/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: kanarek-rolling-release
   cancel-in-progress: false
 
 permissions:
@@ -13,6 +22,7 @@ permissions:
 
 jobs:
   release:
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -21,69 +31,23 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Resolve release version
+      - name: Resolve app version
         id: release
         run: |
-          git fetch --no-tags origin main:refs/remotes/origin/main
-          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-            echo "::error::Release tag must point to a commit already merged into main."
-            exit 1
-          fi
-
           version="$(sed -n 's/^[[:space:]]*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -1)"
           version_code="$(sed -n 's/^[[:space:]]*versionCode = \([0-9][0-9]*\).*/\1/p' app/build.gradle.kts | head -1)"
           if ! printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-            echo "::error::app/build.gradle.kts must declare a semantic version such as 1.0.0."
+            echo "::error::app/build.gradle.kts must declare a semantic version."
             exit 1
           fi
           if ! printf '%s\n' "$version_code" | grep -Eq '^[0-9]+$'; then
             echo "::error::app/build.gradle.kts must declare a numeric versionCode."
             exit 1
           fi
-
-          expected_tag="v${version}"
-          if [ "$GITHUB_REF_NAME" != "$expected_tag" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match app version $version (expected $expected_tag)."
-            exit 1
-          fi
-
-          previous_tag="$(git describe --tags --abbrev=0 --match 'v*' HEAD^ 2>/dev/null || true)"
-          if [ -n "$previous_tag" ]; then
-            previous_code="$(git show "${previous_tag}:app/build.gradle.kts" | sed -n 's/^[[:space:]]*versionCode = \([0-9][0-9]*\).*/\1/p' | head -1)"
-            if ! printf '%s\n' "$previous_code" | grep -Eq '^[0-9]+$'; then
-              echo "::error::Could not read versionCode from $previous_tag."
-              exit 1
-            fi
-            if [ "$version_code" -le "$previous_code" ]; then
-              echo "::error::versionCode must increase (current $version_code, $previous_tag had $previous_code)."
-              exit 1
-            fi
-          fi
-
           {
             echo "version=$version"
             echo "version_code=$version_code"
-            echo "previous_tag=$previous_tag"
           } >> "$GITHUB_OUTPUT"
-
-      - name: Build release notes
-        env:
-          PREVIOUS_TAG: ${{ steps.release.outputs.previous_tag }}
-          RELEASE_VERSION: ${{ steps.release.outputs.version }}
-        run: |
-          {
-            echo "## What's Changed"
-            if [ -n "$PREVIOUS_TAG" ]; then
-              notes="$(git log --no-merges "$PREVIOUS_TAG..HEAD" --pretty=format:'* %s' -- app)"
-              if [ -n "$notes" ]; then
-                printf '%s\n' "$notes"
-              else
-                echo "* Kanarek release maintenance."
-              fi
-            else
-              echo "* Kanarek $RELEASE_VERSION release."
-            fi
-          } > release-notes.md
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -138,21 +102,48 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleRelease --no-daemon --stacktrace
 
-      - name: Rename release APKs
-        # These filenames exist only when the signing env above reached Gradle. If it did not,
-        # AGP emits *-unsigned.apk and this step fails closed instead of publishing it.
+      - name: Prepare release assets
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/play/release/app-play-release.apk dist/kanarek.apk
+          cp app/build/outputs/apk/foss/release/app-foss-release.apk dist/kanarek-foss.apk
+
+      - name: Publish rolling release
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
         run: |
-          mv app/build/outputs/apk/play/release/app-play-release.apk \
-             "app/build/outputs/apk/play/release/kanarek-${RELEASE_VERSION}.apk"
-          mv app/build/outputs/apk/foss/release/app-foss-release.apk \
-             "app/build/outputs/apk/foss/release/kanarek-${RELEASE_VERSION}-foss.apk"
+          tag="kanarek-latest"
 
-      - name: Publish GitHub release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Kanarek ${{ steps.release.outputs.version }}
-          body_path: release-notes.md
-          files: app/build/outputs/apk/*/release/kanarek-*.apk
+          cat > release-notes.md <<EOF
+          Signed Android builds from \`${GITHUB_SHA}\`.
+
+          Rolling release. Assets are replaced after each successful build of \`main\`.
+          App version: \`${RELEASE_VERSION}\`.
+          EOF
+
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/$GH_REPO/git/refs/tags/$tag" \
+              -f sha="$GITHUB_SHA" \
+              -F force=true
+            gh release edit "$tag" \
+              --title "Kanarek · rolling" \
+              --notes-file release-notes.md
+          else
+            gh release create "$tag" \
+              --draft \
+              --target "$GITHUB_SHA" \
+              --title "Kanarek · rolling" \
+              --notes-file release-notes.md
+          fi
+
+          gh release upload "$tag" \
+            dist/kanarek.apk \
+            dist/kanarek-foss.apk \
+            --clobber
+          gh release edit "$tag" --draft=false --latest
+
+          # Keep the immutable version tag for source/F-Droid history, but retire
+          # the superseded numbered GitHub release.
+          gh release delete v0.0.6 --yes 2>/dev/null || true
