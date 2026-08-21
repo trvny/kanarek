@@ -17,7 +17,7 @@ The `play` flavor includes Google Cast / Play Services. The `foss` flavor does n
 
 ## fdroiddata metadata
 
-Copy this to `metadata/com.kanarek.yml` in a fork of `fdroid/fdroiddata` when filing the submission. Replace `__F_DROID_PREP_COMMIT__` with the final Kanarek preparation commit before opening the merge request.
+Copy this to `metadata/com.kanarek.yml` in a fork of `fdroid/fdroiddata` when filing the submission.
 
 ```yaml
 Categories:
@@ -37,7 +37,7 @@ Repo: https://github.com/trvny/kanarek.git
 Builds:
   - versionName: 0.0.6
     versionCode: 4
-    commit: __F_DROID_PREP_COMMIT__
+    commit: f0cfc72b879ead14a9c2accb9c6805fd4e9fdb63
     subdir: app
     gradle:
       - foss
@@ -74,8 +74,7 @@ The optional `worker/` backend is not part of the APK and is not required for or
 
 ## Before filing
 
-1. Replace the preparation-commit placeholder in the metadata above.
-2. Run one final `fdroid lint` / `fdroid build com.kanarek:4` sanity check if an F-Droid build environment is available.
-3. Open the `fdroiddata` merge request as a new app submission.
+1. Run one final `fdroid lint` / `fdroid build com.kanarek:4` sanity check if an F-Droid build environment is available.
+2. Open the `fdroiddata` merge request as a new app submission.
 
 Do not reuse or modify the separate WiFi Automatic submission.
