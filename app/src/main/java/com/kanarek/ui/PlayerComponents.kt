@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -471,14 +473,19 @@ private fun KindTabRow(
             Tab(
                 selected = tab == selected,
                 onClick = { onSelect(tab) },
-                text = { Text(stringResource(stationFilterLabel(tab))) },
-                icon = {
-                    stationFilterIcon(tab)?.let { icon ->
-                        Icon(
-                            icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
+                text = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        stationFilterIcon(tab)?.let { icon ->
+                            Icon(
+                                icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                        Text(stringResource(stationFilterLabel(tab)))
                     }
                 },
             )
@@ -579,11 +586,18 @@ private fun VideoArea(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .aspectRatio(ratio)
+                .height(180.dp)
                 .background(Color.Black)
                 .clickable(onClick = onExpand),
+        contentAlignment = Alignment.Center,
     ) {
-        VideoSurface(service = service, modifier = Modifier.fillMaxSize())
+        VideoSurface(
+            service = service,
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(ratio),
+        )
         Icon(
             Icons.Filled.Fullscreen,
             contentDescription = stringResource(R.string.video_fullscreen_enter),
