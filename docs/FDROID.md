@@ -1,22 +1,23 @@
 # Submitting Kanarek to F-Droid
 
-Working notes for the fdroiddata merge request. Nothing here is submitted yet.
+Prepared submission notes. Nothing has been submitted to F-Droid yet.
 
-## Why this repository exists
+## Ready state
 
-Kanarek used to live in `trvny/feeds/kanarek/`, next to an unrelated Python project
-(`feedseek`). F-Droid can build from a subdirectory, but the metadata, the issue tracker
-link, the tags and the changelog would all have pointed at a repository that is mostly not
-this app. The history was extracted with `git subtree split --prefix=kanarek`, so every
-commit that ever touched the app is preserved here; `v1.0.0` and `v1.0.1` were re-tagged on
-the extracted commits with the identical trees.
+- Application ID: `com.kanarek`
+- License: MIT
+- Current release: `0.0.6` (`versionCode 4`)
+- Android source module: `app/`
+- F-Droid build flavor: `foss`
+- Minimum Android: 8.0 / API 26
+- Upstream listing metadata: `app/fastlane/metadata/android/`
+- English and Polish store text are included upstream.
 
-## Draft metadata
+The `play` flavor includes Google Cast / Play Services. The `foss` flavor does not and is the only flavor intended for F-Droid.
 
-To go in `metadata/com.kanarek.yml` in a fork of
-[fdroiddata](https://gitlab.com/fdroid/fdroiddata). Verify every field against the
-[metadata reference](https://f-droid.org/docs/Build_Metadata_Reference/) before filing;
-this is a draft written from the repository, not from a successful build.
+## fdroiddata metadata
+
+Copy this to `metadata/com.kanarek.yml` in a fork of `fdroid/fdroiddata` when filing the submission. Replace `__F_DROID_PREP_COMMIT__` with the final Kanarek preparation commit before opening the merge request.
 
 ```yaml
 Categories:
@@ -34,48 +35,47 @@ RepoType: git
 Repo: https://github.com/trvny/kanarek.git
 
 Builds:
-  - versionName: 1.0.1
-    versionCode: 2
-    commit: v1.0.1
+  - versionName: 0.0.6
+    versionCode: 4
+    commit: __F_DROID_PREP_COMMIT__
     subdir: app
     gradle:
       - foss
+    prebuild:
+      - sdkmanager "platforms;android-37.0" "build-tools;37.0.0"
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags ^v[0-9.]+$
-CurrentVersion: 1.0.1
-CurrentVersionCode: 2
+CurrentVersion: 0.0.6
+CurrentVersionCode: 4
 ```
 
-`gradle: [foss]` is the point of the two product flavors: `play` pulls in Google Cast via
-GMS, `foss` does not. F-Droid must build `foss`.
+The first F-Droid build intentionally uses the exact preparation commit rather than the older `v0.0.6` tag. That commit contains the F-Droid-visible Fastlane layout while keeping the same app version and version code. Future releases can be picked up from normal `v*` tags by `AutoUpdateMode`.
 
-## The Gradle wrapper is missing on purpose
+## Store listing
 
-Only `gradle/wrapper/gradle-wrapper.properties` is tracked; there is no `gradle-wrapper.jar`
-and no `gradlew`. That is deliberate: a committed jar is a prebuilt binary, which F-Droid's
-scanner objects to. fdroidserver runs its own Gradle wrapper and reads the version out of
-`gradle-wrapper.properties`, so the build should not need `gradlew` from the repository.
-**Check this against a real `fdroid build` before submitting**. If it turns out fdroidserver
-does want `gradlew`, the fix is a `prebuild:` step that installs/uses the exact Gradle version
-from `gradle-wrapper.properties` before running its `wrapper` task, not committing the jar.
-CI here follows the same version-source rule in `.github/workflows/android-ci.yml`.
+F-Droid can read the upstream Fastlane metadata from `app/fastlane/metadata/android/` when building with `subdir: app`.
 
-## Still to do before filing
+English short description:
 
-- **Screenshots and an icon** under `app/src/main/fastlane/metadata/android/<locale>/images/`
-  (`icon.png`, `featureGraphic.png`, `phoneScreenshots/1.png`…). Text metadata exists in
-  `en-US` and `pl-PL`; the listing will look bare without images.
-- A real `fdroid build` / `fdroid lint` run. Neither is possible on the maintainer's Windows
-  machine (no Android SDK platform installed), so this needs CI or another box.
+> News widget for your home screen, plus a radio and IPTV player.
 
-The optional `worker/` backend is maintained in this repository but is not part of the APK.
-Production deployment is connected directly to `trvny/kanarek` through Cloudflare Workers
-Builds, so F-Droid packaging does not depend on the old `trvny/feeds` repository.
+The full English description covers RSS/Atom feeds and widgets, OPML import/export, radio/IPTV playback, M3U playlists, background controls, privacy, and the optional self-hostable backend. A Polish listing is included as well.
 
-## The other F-Droid submission
+Screenshots and a feature graphic are optional polish rather than submission blockers. F-Droid can extract the launcher icon from the APK.
 
-`trvny/WiFi-Automatic` is a separate, older attempt:
-[fdroiddata!41475](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/41475), closed
-2026-07-25 because the fork kept upstream's application ID. Unrelated to Kanarek, but the
-same reviewer and the same process.
+## Build notes
+
+The repository intentionally does not commit `gradlew` or `gradle-wrapper.jar`. F-Droid build servers provide `gradlew-fdroid`, which reads the pinned Gradle version from `gradle/wrapper/gradle-wrapper.properties`.
+
+Kanarek currently compiles against Android 37. Current fdroiddata recipes install that SDK explicitly when needed, so the build entry installs `platforms;android-37.0` and `build-tools;37.0.0` before Gradle runs.
+
+The optional `worker/` backend is not part of the APK and is not required for ordinary on-device RSS/Atom parsing.
+
+## Before filing
+
+1. Replace the preparation-commit placeholder in the metadata above.
+2. Run one final `fdroid lint` / `fdroid build com.kanarek:4` sanity check if an F-Droid build environment is available.
+3. Open the `fdroiddata` merge request as a new app submission.
+
+Do not reuse or modify the separate WiFi Automatic submission.
