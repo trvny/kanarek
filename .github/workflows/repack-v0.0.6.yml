@@ -103,3 +103,14 @@ jobs:
           gh release view v0.0.6 \
             --repo "$GITHUB_REPOSITORY" \
             --json tagName,name,assets
+
+      - name: Record repack success
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          content="$(printf '%s\n' "$GITHUB_SHA" | base64 -w0)"
+          gh api \
+            --method PUT \
+            "repos/$GITHUB_REPOSITORY/contents/.github/repack-v0.0.6.done" \
+            -f message="ci: mark v0.0.6 repack complete" \
+            -f content="$content"
