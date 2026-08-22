@@ -30,20 +30,7 @@ jobs:
 
       - name: Read the Gradle version from the wrapper properties
         id: gradle
-        # gradle-wrapper.properties is the single source of truth, because that is the file
-        # Dependabot bumps. Hard-coding the version here instead would make those bumps a
-        # no-op: setup-gradle would install the old version and the wrapper regeneration
-        # below would rewrite the properties file back, so CI would go green without ever
-        # building against the new Gradle.
-        run: |
-          version=$(sed -n 's#^distributionUrl=.*/gradle-\([0-9][A-Za-z0-9.-]*\)-\(bin\|all\)\.zip$#\1#p' \
-            gradle/wrapper/gradle-wrapper.properties)
-          if [ -z "$version" ]; then
-            echo "::error::could not parse a Gradle version out of gradle-wrapper.properties"
-            exit 1
-          fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "Gradle $version"
+        run: .github/scripts/gradle-version.sh
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -78,3 +65,43 @@ jobs:
           name: kanarek-debug-apk
           path: app/build/outputs/apk/*/debug/*.apk
           if-no-files-found: warn
+
+
+  # Two jobs, and the split is the whole point: the graph is resolved by *running the
+  # project's own build logic*, so a pull request branch must never do that with a
+  # write-capable token. Same-repository PRs do not get their permissions downgraded the way
+  # forks do, so the boundary has to be drawn here rather than assumed.
+
+  dependency-graph:
+    # Pull requests: prove resolution still works, with a read-only token and no submission.
+    name: Dependency graph
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/gradle-dependency-graph
+        with:
+          mode: generate-and-upload
+
+  dependency-graph-submit:
+    # main: without this, Dependabot reports zero alerts here and the silence means nothing.
+    # On 22.08.2026 the graph held 237 npm packages from worker/, nine actions and no JVM
+    # entry at all, eight days after the app moved into this repository -- GitHub does not
+    # derive a Gradle graph on its own. The code being run here is already merged, so the
+    # write token is at the same trust level as the rest of the push build.
+    name: Dependency graph (submit)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/gradle-dependency-graph
+        with:
+          mode: generate-and-submit
