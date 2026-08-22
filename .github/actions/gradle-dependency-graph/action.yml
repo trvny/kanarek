@@ -34,4 +34,16 @@ runs:
         # jar regenerated the way the build job does.
         gradle-version: ${{ steps.gradle.outputs.version }}
         dependency-graph: ${{ inputs.mode }}
+        # Report only what reaches a user. Measured 22.08.2026: all 49 alerts this graph
+        # first produced were against build tooling -- 40 netty via AGP's Unified Test
+        # Platform, the rest via androidLintTool, unit-test classpaths and the buildscript.
+        # Zero of the 14 flagged packages appear in playReleaseRuntimeClasspath or
+        # fossReleaseRuntimeClasspath, and AGP 9.3.1 still pins netty 4.1.110, so there is
+        # no upstream fix to take either.
+        #
+        # The cost of this line is real and deliberate: a CVE in a build tool -- the Kotlin
+        # Gradle plugin, lint -- will no longer raise an alert here. That is a build-integrity
+        # risk traded against 97 alerts across two repositories that bury anything genuine.
+        # Delete the line to get the broad view back.
+        dependency-graph-include-configurations: .*ReleaseRuntimeClasspath
         additional-arguments: --no-configuration-cache --stacktrace
