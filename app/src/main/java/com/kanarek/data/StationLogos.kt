@@ -3,7 +3,6 @@ package com.kanarek.data
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
@@ -49,7 +48,7 @@ class StationLogos {
                 }
             try {
                 if (conn.responseCode !in 200..299) return emptyMap()
-                val body = conn.inputStream.bufferedReader().use(BufferedReader::readText)
+                val body = conn.inputStream.use { it.readTextCapped(MAX_RESPONSE_BYTES) }
                 parse(body)
             } finally {
                 conn.disconnect()
@@ -93,6 +92,7 @@ class StationLogos {
 
     companion object {
         private const val TIMEOUT_MS = 8_000
+        private const val MAX_RESPONSE_BYTES = 512 * 1024
         private const val MAX_IDS = 200 // keep in step with the Worker's MAX_LOGO_IDS
     }
 }
