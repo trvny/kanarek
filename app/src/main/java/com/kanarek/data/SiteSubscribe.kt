@@ -61,12 +61,13 @@ object SiteSubscribe {
             }
         try {
             if (conn.responseCode !in 200..299) error("HTTP ${conn.responseCode} for $urlStr")
-            return conn.inputStream.bufferedReader().use { it.readText() }
+            return conn.inputStream.use { it.readTextCapped(MAX_RESPONSE_BYTES) }
         } finally {
             conn.disconnect()
         }
     }
 
     private const val TIMEOUT_MS = 8_000
+    private const val MAX_RESPONSE_BYTES = 512 * 1024
     private const val USER_AGENT = "kanarek/1.0 (Android; +https://github.com/trvny/feeds)"
 }
