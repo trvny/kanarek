@@ -55,11 +55,7 @@ class StationDirectory {
             }
         try {
             if (conn.responseCode !in 200..299) error("HTTP ${conn.responseCode} for $urlStr")
-            val body = try {
-                conn.inputStream.use { it.readTextCapped(MAX_RESPONSE_BYTES) }
-            } catch (e: java.io.IOException) {
-                throw java.io.IOException("Response too large for $urlStr", e)
-            }
+            val body = conn.inputStream.use { it.readTextCapped(MAX_RESPONSE_BYTES) }
             return parse(body)
         } finally {
             conn.disconnect()

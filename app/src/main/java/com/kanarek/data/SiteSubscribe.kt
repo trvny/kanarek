@@ -61,11 +61,7 @@ object SiteSubscribe {
             }
         try {
             if (conn.responseCode !in 200..299) error("HTTP ${conn.responseCode} for $urlStr")
-            return try {
-                conn.inputStream.use { it.readTextCapped(MAX_RESPONSE_BYTES) }
-            } catch (e: java.io.IOException) {
-                throw java.io.IOException("Response too large for $urlStr", e)
-            }
+            return conn.inputStream.use { it.readTextCapped(MAX_RESPONSE_BYTES) }
         } finally {
             conn.disconnect()
         }
