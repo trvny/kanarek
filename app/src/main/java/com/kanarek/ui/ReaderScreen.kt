@@ -41,6 +41,7 @@ import com.kanarek.data.ReaderFeedSyncConfig
 import com.kanarek.data.ReaderFeedSynchronizer
 import com.kanarek.data.SettingsStore
 import com.kanarek.data.configuredReaderBackend
+import com.kanarek.data.readTextCapped
 import com.kanarek.notifications.NewsNotificationWorker
 import com.kanarek.reader.ReaderRefreshWorker
 import com.kanarek.widget.KanarekWidgetProvider
@@ -237,8 +238,7 @@ internal fun ReaderScreen(
                         runCatching {
                             context.contentResolver
                                 .openInputStream(uri)
-                                ?.bufferedReader()
-                                ?.use { it.readText() }
+                                ?.use { it.readTextCapped(MAX_OPML_BYTES) }
                         }.getOrNull()
                     } ?: return@launch
                 val merged = (parseFeedField() + Opml.parse(text)).distinct()
@@ -560,3 +560,8 @@ internal fun ReaderScreen(
 }
 
 private const val READER_ITEM_LIMIT = 15
+
+// The picker offers */* alongside the OPML types, so the chosen file can be
+// anything at all. Same ceiling as the playlist import; every other read in the
+// app is already bounded this way.
+private const val MAX_OPML_BYTES = 8 * 1024 * 1024
