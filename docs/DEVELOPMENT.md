@@ -62,7 +62,10 @@ Repository workflows live in `.github/workflows/`.
 
 - `android-ci.yml`: builds play and foss debug APKs, runs Android lint and JVM tests.
 - `worker-ci.yml`: TypeScript typecheck and Vitest tests for Worker changes.
-- `release.yml`: builds and publishes signed play/foss APKs for matching `v<versionName>` tags.
+- `release.yml` ("Rolling release"): on every push to `main` touching `app/`, `shared/` or the
+  Gradle files, builds signed play/foss APKs and republishes them under the moving
+  `kanarek-latest` tag. No workflow here triggers on a pushed tag — publishing a `v<versionName>`
+  tag builds nothing.
 - Production Worker deployment is owned by Cloudflare Workers Builds and runs from `worker/` on `main` changes.
 - GitHub CodeQL default setup provides repository code scanning.
 - Dependabot handles dependency updates according to the repository configuration.

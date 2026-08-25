@@ -28,10 +28,12 @@ glance at the alert list.
 The alerts are filed on **`trvny/feeds`** against `kanarek/settings.gradle.kts`. That path was
 **removed from `trvny/feeds`** when this project split out to its own repository
 (`trvny/kanarek`, 2026-08-14), so the alerts now point at a manifest that no longer exists in the
-repo they are attached to. `trvny/kanarek` itself has **0 open Dependabot alerts** — no
-dependency-submission workflow runs here, so its build-tooling graph is not tracked (which is
-harmless precisely because, as shown below, none of it ships). The dismissal decision therefore
-belongs to whoever owns the `trvny/feeds` security tab; this document is the evidence for it.
+repo they are attached to. `trvny/kanarek` itself has **0 open Dependabot alerts**, and since
+2026-08-22 that zero means something: the `dependency-graph-submit` job in `android-ci.yml`
+submits the Gradle graph on every push to `main` (#36). Before it existed the graph held no JVM
+entry at all, so the silence was an absence of data rather than an absence of findings. The
+dismissal decision belongs to whoever owns the `trvny/feeds` security tab; this document is the
+evidence for it.
 
 ## Method
 
@@ -114,11 +116,14 @@ in the APK" and is out of scope for a single-maintainer local/CI build.
   would still be worth re-checking since a debug build can end up on a device too.
 - If AGP bumps its own bundled versions of these libraries (a new AGP release), the
   flagged versions here go stale automatically; re-resolve after any AGP bump.
-- If a dependency-submission workflow is added, make sure whatever generates the
-  graph preserves per-configuration scope so GitHub can tell build-time and
-  runtime dependencies apart. Today's attribution collapses everything to
-  `settings.gradle.kts` with `dependency.scope: null`, which is why this had to be
-  resolved by hand instead of by reading the alert.
+- Submission now happens here, and it deliberately narrows what it reports:
+  `.github/actions/gradle-dependency-graph` passes
+  `dependency-graph-include-configurations: ^[a-z]*[Rr]eleaseRuntimeClasspath$`, so
+  build-time tooling stays out of the graph rather than arriving with
+  `dependency.scope: null`. If that filter is widened, expect build-time findings to
+  reappear as alerts — and expect the hand resolution below to be needed again,
+  because the `trvny/feeds` attribution that made this triage necessary collapsed
+  everything to `settings.gradle.kts` with no scope at all.
 
 ## Proposed alert disposition
 
