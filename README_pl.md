@@ -98,14 +98,14 @@ Konfiguracja zależna od systemu i bootstrap równoważny z CI są opisane w [do
 Projekt jest udostępniany na warunkach licencji opisanej w [LICENSE](LICENSE).
 
 ---
-## 💬 Quote from the drawer
+## 💬 Cytat z szuflady
 <!-- markdownlint-disable MD033 -->
 <!--STARTS_HERE_QUOTE_README-->
 <i>❝Don'T Find Fault, Find A Remedy. — Henry Ford❞</i>
 <!--ENDS_HERE_QUOTE_README-->
 <!-- markdownlint-enable MD033 -->
 
-## 📰 Recently on the air
+## 📰 Ostatnio w eterze
 <!--README_FEED:START-->
 - [Krzeszowice zyskają nowe miejsce dla młodych. Budowa trwa - krzeszowiceone.pl](https://news.google.com/atom/articles/CBMiqgFBVV95cUxPQUd0U1huc1J2bThOZzcySHUzSVdlUEZCZ29jV1ZfYURLZWNTeDZ3YmtMRy0wZ2pKTllUR1lmUktRekIxNG5mMmY5QWNIR3otWjJ0ajNIN0NMT2ZaN2JqM0VvcVBYVXpxeXpCczR3R2txU0ZTTXoxRFozZGdpT2NhVEJ2aWZ6cWlHZDJ3WEo0dEJHMXM5TWJSTnBtWTNLd0NfWTA1aEtlLXJDQdIBrwFBVV95cUxNTHJKUEMzRmJfNW0xOUIxWlhCc28wbTJ4QkpLdWtaRlF0X1JUaFdoOEg4Ylg5VkwzRzctZXNLaDN2VUgyTkdSSGhjSzJXTld2cFZyS1hoaUNQRm0zODhFQThYQ1Fwb3pKYW8xVGdJUWxNR296THBoX2JuQkFtdnptQ1ZVdVR2YTJhQ09NdDgzMUZrNnZOb1dFMERzNHBFQUUwRGVjbktoM29ta1R0U2dj?oc=5)
 - [Święto plonów w Lgocie! Barwny korowód i wspólna zabawa mieszkańców \(WIDEO,ZDJĘCIA\) - Przelom.pl](https://news.google.com/atom/articles/CBMixAFBVV95cUxOd0NQVmd2NlJfR3lXZ1VwdDhWd3lUUXdRRHNneHNNbDFkUWVxWkg0M3BnTDRNVVZWOE5feXZFUFJIaVc3QlNGdlVsdG81UWhHR050cHNkelYydmtXYnR5M2pNWThySDlYeUJYZFFwRHctSnlLbGFjeGMxRnJVXzdLQ3BBZ0l5eXAzQ0VmOEVrUklNdFVXdmdZcnByLTIyOXpIOW1BcldqemQtbGJCcWxNT2Fqa0Q3d1IxU1k2YnNKdWJ2aE5B?oc=5)
