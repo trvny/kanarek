@@ -25,14 +25,14 @@ Categories:
   - Multimedia
 License: MIT
 AuthorName: trvny
-SourceCode: https://github.com/trvny/kanarek
-IssueTracker: https://github.com/trvny/kanarek/issues
-Changelog: https://github.com/trvny/kanarek/releases
+SourceCode: https://github.com/twojstar/kanarek
+IssueTracker: https://github.com/twojstar/kanarek/issues
+Changelog: https://github.com/twojstar/kanarek/releases
 
 AutoName: Kanarek
 
 RepoType: git
-Repo: https://github.com/trvny/kanarek.git
+Repo: https://github.com/twojstar/kanarek.git
 
 Builds:
   - versionName: 0.0.6

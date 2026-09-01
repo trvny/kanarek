@@ -91,7 +91,7 @@ gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 
 ## [License](LICENSE)
 
-[![License](https://www.shieldcn.dev/github/license/trvny/feeds.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
+[![License](https://www.shieldcn.dev/github/license/twojstar/kanarek.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
 
 ---
 ## 💬 Quote from the drawer

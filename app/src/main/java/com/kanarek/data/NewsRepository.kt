@@ -230,7 +230,7 @@ class NewsRepository {
         private const val MAX_LIMIT = 100
         private const val MAX_BACKEND_BYTES = 2 * 1024 * 1024
         private const val MAX_FEED_BYTES = 4 * 1024 * 1024
-        private const val USER_AGENT = "kanarek/1.0 (Android; +https://github.com/trvny/feeds)"
+        private const val USER_AGENT = "kanarek/1.0 (Android; +https://github.com/twojstar/kanarek)"
 
         val DEFAULT_FEEDS =
             listOf(

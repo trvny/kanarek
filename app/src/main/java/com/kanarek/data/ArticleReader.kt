@@ -71,6 +71,6 @@ class ArticleReader {
         const val MAX_CONTENT_CHARS = 60_000
         const val MAX_TITLE_CHARS = 240
         const val MAX_AUTHOR_CHARS = 160
-        const val USER_AGENT = "kanarek/1.0 (Android; +https://github.com/trvny/feeds)"
+        const val USER_AGENT = "kanarek/1.0 (Android; +https://github.com/twojstar/kanarek)"
     }
 }

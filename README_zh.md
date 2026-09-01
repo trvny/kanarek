@@ -90,7 +90,7 @@ gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 
 ## [许可证](LICENSE)
 
-[![License](https://www.shieldcn.dev/github/license/trvny/feeds.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
+[![License](https://www.shieldcn.dev/github/license/twojstar/kanarek.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
 
 ---
 ## 💬 抽屉里的引语

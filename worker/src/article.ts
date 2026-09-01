@@ -324,7 +324,7 @@ async function fetchArticleHtml(initialUrl: string, allowedHosts: ReadonlySet<st
         signal: controller.signal,
         redirect: "manual",
         headers: {
-          "user-agent": "kanarek/1.0 (+https://github.com/trvny/feeds)",
+          "user-agent": "kanarek/1.0 (+https://github.com/twojstar/kanarek)",
           accept: "text/html, application/xhtml+xml",
         },
       });
