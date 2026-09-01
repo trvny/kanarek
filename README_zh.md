@@ -13,7 +13,6 @@
 [![last commit](https://img.shields.io/github/last-commit/twojstar/kanarek?color=FFC107&logo=git&logoColor=111&style=flat-square)](https://github.com/twojstar/kanarek/commits/main)
 [![license](https://img.shields.io/github/license/twojstar/kanarek?color=FFC107&style=flat-square)](LICENSE)<br>
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Cloudflare Worker](https://img.shields.io/badge/Worker-F38020?style=flat-square&logo=cloudflareworkers&logoColor=white)<br>
-<a href="https://deepwiki.com/twojstar/kanarek"><img src="https://deepwiki.com/badge.svg" alt="DeepWiki"></a>
 
 </div>
 
