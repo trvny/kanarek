@@ -8,12 +8,12 @@
 
 **Android news reader and widget with a background radio/IPTV player.**
 
-[![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml)
-[![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml)
-[![last commit](https://img.shields.io/github/last-commit/trvny/kanarek?color=FFC107&logo=git&logoColor=111&style=flat-square)](https://github.com/trvny/kanarek/commits/main)
-[![license](https://img.shields.io/github/license/trvny/kanarek?color=FFC107&style=flat-square)](LICENSE)  
-![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Cloudflare Worker](https://img.shields.io/badge/Worker-F38020?style=flat-square&logo=cloudflareworkers&logoColor=white)  
-<a href="https://deepwiki.com/trvny/kanarek"><img src="https://deepwiki.com/badge.svg" alt="DeepWiki"></a>
+[![android CI](https://img.shields.io/github/actions/workflow/status/twojstar/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=111&color=FFC107&style=flat-square)](https://github.com/twojstar/kanarek/actions/workflows/android-ci.yml)
+[![worker CI](https://img.shields.io/github/actions/workflow/status/twojstar/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=111&color=FFC107&style=flat-square)](https://github.com/twojstar/kanarek/actions/workflows/worker-ci.yml)
+[![last commit](https://img.shields.io/github/last-commit/twojstar/kanarek?color=FFC107&logo=git&logoColor=111&style=flat-square)](https://github.com/twojstar/kanarek/commits/main)
+[![license](https://img.shields.io/github/license/twojstar/kanarek?color=FFC107&style=flat-square)](LICENSE)<br>
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Cloudflare Worker](https://img.shields.io/badge/Worker-F38020?style=flat-square&logo=cloudflareworkers&logoColor=white)<br>
+<a href="https://deepwiki.com/twojstar/kanarek"><img src="https://deepwiki.com/badge.svg" alt="DeepWiki"></a>
 
 </div>
 
@@ -48,7 +48,7 @@ An optional Cloudflare Worker accelerates fetching and provides additional netwo
 
 ## Install
 
-[APK](https://github.com/trvny/kanarek/releases).
+[APK](https://github.com/twojstar/kanarek/releases).
 
 - `play`: includes Google Cast support,
 - `foss`: GMS-free build intended for FOSS and F-Droid environments.
