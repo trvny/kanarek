@@ -8,12 +8,11 @@
 
 **Android 新闻阅读器与桌面小组件，同时提供后台广播/IPTV 播放。**
 
-[![android CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/android-ci.yml)
-[![worker CI](https://img.shields.io/github/actions/workflow/status/trvny/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=111&color=FFC107&style=flat-square)](https://github.com/trvny/kanarek/actions/workflows/worker-ci.yml)
-[![last commit](https://img.shields.io/github/last-commit/trvny/kanarek?color=FFC107&logo=git&logoColor=111&style=flat-square)](https://github.com/trvny/kanarek/commits/main)
-[![license](https://img.shields.io/github/license/trvny/kanarek?color=FFC107&style=flat-square)](LICENSE)  
-![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Cloudflare Worker](https://img.shields.io/badge/Worker-F38020?style=flat-square&logo=cloudflareworkers&logoColor=white)  
-<a href="https://deepwiki.com/trvny/kanarek"><img src="https://deepwiki.com/badge.svg" alt="DeepWiki"></a>
+[![android CI](https://img.shields.io/github/actions/workflow/status/twojstar/kanarek/android-ci.yml?label=android%20CI&logo=android&logoColor=111&color=FFC107&style=flat-square)](https://github.com/twojstar/kanarek/actions/workflows/android-ci.yml)
+[![worker CI](https://img.shields.io/github/actions/workflow/status/twojstar/kanarek/worker-ci.yml?label=worker%20CI&logo=cloudflare&logoColor=111&color=FFC107&style=flat-square)](https://github.com/twojstar/kanarek/actions/workflows/worker-ci.yml)
+[![last commit](https://img.shields.io/github/last-commit/twojstar/kanarek?color=FFC107&logo=git&logoColor=111&style=flat-square)](https://github.com/twojstar/kanarek/commits/main)
+[![license](https://img.shields.io/github/license/twojstar/kanarek?color=FFC107&style=flat-square)](LICENSE)<br>
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![Cloudflare Worker](https://img.shields.io/badge/Worker-F38020?style=flat-square&logo=cloudflareworkers&logoColor=white)<br>
 
 </div>
 
@@ -48,7 +47,7 @@ Kanarek 把两类工具放进一个原生应用：
 
 ## 安装
 
-[APK](https://github.com/trvny/kanarek/releases)
+[APK](https://github.com/twojstar/kanarek/releases)
 
 - `play`：包含 Google Cast；
 - `foss`：无 GMS，面向 FOSS / F-Droid 环境。
@@ -90,7 +89,7 @@ gradle wrapper --gradle-version "$GRADLE_VERSION" --no-daemon
 
 ## [许可证](LICENSE)
 
-[![License](https://www.shieldcn.dev/github/license/trvny/feeds.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
+[![License](https://www.shieldcn.dev/github/license/twojstar/kanarek.svg?variant=branded&size=xm&mode=light&theme=neutral&font=jetbrains-mono)](https://spdx.org/licenses/MIT)
 
 ---
 ## 💬 抽屉里的引语

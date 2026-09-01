@@ -47,7 +47,7 @@ class KanarekProcessInitializer : Initializer<Unit> {
                                             .newBuilder()
                                             .header(
                                                 "User-Agent",
-                                                "Kanarek Android (+https://github.com/trvny/kanarek)",
+                                                "Kanarek Android (+https://github.com/twojstar/kanarek)",
                                             ).build()
                                     chain.proceed(request)
                                 }.build()
