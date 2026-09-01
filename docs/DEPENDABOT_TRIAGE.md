@@ -28,7 +28,7 @@ glance at the alert list.
 The alerts are filed on **`trvny/feeds`** against `kanarek/settings.gradle.kts`. That path was
 **removed from `trvny/feeds`** when this project split out to its own repository
 (`trvny/kanarek`, 2026-08-14), so the alerts now point at a manifest that no longer exists in the
-repo they are attached to. `trvny/kanarek` itself has **0 open Dependabot alerts**, and since
+repo they are attached to. The current repository, `twojstar/kanarek`, has **0 open Dependabot alerts**, and since
 2026-08-22 that zero means something: the `dependency-graph-submit` job in `android-ci.yml`
 submits the Gradle graph on every push to `main` (#36). Before it existed the graph held no JVM
 entry at all, so the silence was an absence of data rather than an absence of findings. The
