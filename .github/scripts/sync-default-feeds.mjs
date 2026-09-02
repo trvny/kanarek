@@ -129,6 +129,15 @@ function workerHostAllowed(host, allowedHosts) {
   });
 }
 
+function workerUrlAllowed(url, allowedHosts) {
+  const defaultPort = url.protocol === "https:" ? "443" : url.protocol === "http:" ? "80" : "";
+  return Boolean(defaultPort)
+    && !url.username
+    && !url.password
+    && (!url.port || url.port === defaultPort)
+    && workerHostAllowed(url.hostname, allowedHosts);
+}
+
 const wrangler = await readFile(wranglerPath, "utf8");
 const config = JSON.parse(stripTrailingCommas(stripJsoncComments(wrangler)));
 const defaultFeeds = config?.vars?.DEFAULT_FEEDS;
@@ -160,11 +169,8 @@ if (new Set(feeds).size !== feeds.length) {
 }
 for (const feed of feeds) {
   const url = new URL(feed);
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error(`Default feed must use HTTP(S): ${feed}`);
-  }
-  if (!workerHostAllowed(url.hostname, allowedHosts)) {
-    throw new Error(`Default feed host is not allowed by Worker rules: ${feed}`);
+  if (!workerUrlAllowed(url, allowedHosts)) {
+    throw new Error(`Default feed URL is not allowed by Worker rules: ${feed}`);
   }
 }
 
