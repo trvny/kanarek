@@ -1,114 +1,142 @@
 # Kanarek architecture
 
-Kanarek is one Android application with two main surfaces:
+Kanarek is one Android application with two main user surfaces and an optional edge backend:
 
 - a news reader and resizable news slideshow widget,
-- a background radio/IPTV player and transport-control widget.
+- a background radio/IPTV player and transport-control widget,
+- a Cloudflare Worker that accelerates and extends feed/integration work without becoming mandatory for ordinary reading.
 
-The optional Cloudflare Worker accelerates feed parsing and adds discovery, scraping, clean-reader extraction, station search, logo lookup, and synchronized state. The app still parses ordinary RSS/Atom feeds on-device when no backend is configured.
+The repository also contains a Kotlin Multiplatform `shared` module. Portable parsing, models and state logic live there so Android is not the only viable consumer of the core domain code.
 
-## Components
+## Component map
 
-| Component | Stack |
+| Component | Responsibility |
 |---|---|
-| App (`app/`) | Kotlin, Jetpack Compose, App Widgets, Media3/ExoPlayer, DataStore, WorkManager, Coil |
-| Worker (`worker/`) | TypeScript, Cloudflare Workers, Cache API, optional KV and D1 |
+| `app/` | Android UI, services, persistence, WorkManager jobs and App Widgets |
+| `shared/` | Platform-independent domain/parser/state logic plus small platform implementations |
+| `worker/` | Optional edge feed processing, discovery/scraping, article extraction, directory/logo lookup and synchronized state |
 
 ```text
-HomeActivity: ReaderScreen <-> PlayerScreen
-(swipe pager, bottom navigation, drawer)
-          |
-          v
-NewsRepository ---- on-device fallback: FeedParser (pure Kotlin)
-          |
-          | GET /?feeds=...       Worker: merge, dedupe, sort
-          | <-------------------- JSON / Atom / RSS / JSON Feed
-          |                       ETag/304, D1 state, KV/cache
-          v
-KanarekWidgetProvider
+                         ┌────────────────────────────┐
+                         │ shared/commonMain          │
+                         │ models, parsers, codecs,   │
+                         │ merge/state/UI logic       │
+                         └─────────────┬──────────────┘
+                                       │
+                                       v
+HomeActivity: ReaderScreen <----> PlayerScreen
+      │                                │
+      v                                v
+NewsRepository                    PlayerService
+      │                           ExoPlayer + MediaSession
+      │                                │
+      │                                ├── system media controls
+      │                                ├── PlayerWidgetProvider
+      │                                └── play flavor: CastPlayer
+      │
+      ├── backend configured ──> Cloudflare Worker
+      │                         merge/cache/discover/scrape/state
+      │
+      └── backend absent/fails ─> on-device FeedParser
 
-PlayerScreen
-          |
-          v
-PlayerService (ExoPlayer + MediaSession) ---> PlayerWidgetProvider
+NewsRepository / persisted reader state
+      │
+      └─────────────────────────> KanarekWidgetProvider
 ```
 
-## Design rules
+## Android application shell
+
+`HomeActivity` is the app's single window. `ReaderScreen` and `PlayerScreen` are pages of one `HorizontalPager`, reachable by swipe, bottom navigation or drawer.
+
+The pager keeps its neighbouring page alive. This deliberately preserves the reader's loaded state and the player's service binding when the user switches between the two main surfaces.
+
+App-level Android code owns lifecycle-sensitive concerns such as DataStore, WorkManager, notifications, services, Storage Access Framework integration and launcher widgets. Portable parsing/state logic should not be reintroduced there when it can live in `shared`.
+
+## Reader data flow
+
+`NewsRepository` has two fetch paths:
+
+1. **Worker path:** when a backend URL is configured, it asks the Worker for normalized merged items. It uses ETags and `FeedCache`; a `304 Not Modified` reuses the cached body.
+2. **On-device path:** when the backend is blank or the Worker request fails, feeds are downloaded concurrently and parsed by the shared pure-Kotlin `FeedParser`.
+
+A failing feed is isolated from the rest of the batch. Unsafe non-HTTP(S) article links are discarded, results are deduplicated/capped, and a failed refresh does not intentionally erase last-known-good widget data.
 
 ### Backend remains optional
 
-A blank backend URL keeps regular feeds working through the pure-Kotlin `FeedParser`. The Worker is an optimization and a source of additional features, not a hard dependency.
+The Worker is an optimization and feature extension, not a basic-read dependency. Changes must preserve regular RSS/Atom operation with an empty backend configuration.
 
-### Failure isolation and last-known-good data
+## Shared Kotlin boundary
 
-One broken feed or stream must not sink the remaining sources. A transient news refresh failure preserves the previous successful item set instead of blanking the widget.
+`shared/commonMain` is the source of truth for platform-independent models, parsers, codecs and state transformations, including feed parsing, headline logic, M3U/OPML handling, news merge/configuration, stations and portable UI state.
 
-### Conditional requests
+`shared/androidMain` and `shared/iosMain` contain the platform implementations needed by shared contracts. Shared common tests exercise the portable logic without an Android emulator.
 
-The Worker computes a weak `ETag` from the stable item set, excluding the volatile fetch timestamp. The app returns it through `If-None-Match` and reuses `FeedCache` on `304 Not Modified`.
+This boundary is intentionally enforced in CI on both Android host and iOS simulator targets.
 
-### Testable codecs
+## Playback architecture
 
-`FeedParser`, `Opml`, `M3uCodec`, `Headlines`, and related codecs contain no Android imports. They are tested directly on the JVM without an emulator.
+`PlayerService` is a `MediaSessionService` that owns one local ExoPlayer and one MediaSession for the app process. Playback therefore survives Activity navigation and recomposition and remains visible to Android media controls.
 
-### RemoteViews constraints
+The Activity binds directly to the same-process service through a local Binder. Launcher widgets cannot keep such a binder, so they send service actions and receive pushed playback snapshots.
 
-Both widgets use only launcher-safe RemoteViews classes. Widget image loading uses the shared on-disk `WidgetImageCache`; it does not use Coil inside the launcher process.
+The player supports:
 
-`WidgetRemoteViewsTest` builds both providers' `RemoteViews` and applies every widget layout under Robolectric. This catches invalid views, resources, formatting, and PendingIntent wiring before a launcher reports an opaque "Can't add widget" failure.
+- HLS and DASH through matching Media3 modules,
+- per-stream `User-Agent` and `Referer` headers through a resolving data source,
+- ICY/media metadata for now-playing text,
+- retry/failure state that is surfaced to the UI,
+- a video surface for TV streams while keeping radio audio-only,
+- Google Cast in the `play` flavor.
 
-### One playback engine
+The `foss` flavor supplies matching no-op Cast glue so `main` remains GMS-free and flavor-agnostic.
 
-`PlayerService` owns one ExoPlayer and MediaSession for the app process. The Activity binds to the service, while the player widget sends service actions and receives pushed playback state.
+## App Widgets
 
-Per-stream `User-Agent` and `Referer` values are stored beside the station and injected through Media3's resolving data source.
+Both launcher widgets use Android `RemoteViews`, not Compose. Layouts therefore contain only supported launcher-safe view classes.
 
-### Portable import and export
+Widget image loading uses the shared on-disk `WidgetImageCache`; it does not rely on Coil inside the launcher process. Robolectric tests inflate/apply widget `RemoteViews` to catch unsupported views, resource failures and PendingIntent wiring before a launcher reports an opaque add-widget failure.
 
-OPML and M3U/M3U8 operations use Android's Storage Access Framework, so Kanarek does not request broad storage permission.
+## Worker architecture
 
-## Stack
+The Cloudflare Worker exposes several independent capabilities:
 
-The maintained version sources are `gradle/libs.versions.toml`, `gradle/wrapper/gradle-wrapper.properties`, `gradle.properties`, and the module build files. Do not duplicate exact Kotlin, AGP, Gradle, SDK, or Media3 versions in architecture documentation.
+- feed merge/normalization and Atom/RSS/JSON Feed export,
+- feed discovery,
+- HTML-to-Atom scraping,
+- clean article extraction behind an exact host allowlist,
+- Radio Browser station search,
+- iptv-org logo lookup,
+- optional D1-backed read/subscription/pairing state,
+- health checks.
 
-The project uses Jetpack Compose Material 3, AGP's built-in Kotlin and modern DSL, JVM 17, Media3/ExoPlayer, DataStore, WorkManager, Coil, and a TypeScript Cloudflare Worker. It deliberately avoids Hilt and Room.
+The fast cache is Cloudflare Cache API. Optional KV provides a more durable cross-location cache for discovery/scrape results. Optional D1 stores write-heavy synchronized state. Missing optional bindings disable only their dependent endpoints rather than the whole Worker.
 
-## Source layout
+Production Worker deployment is owned by Cloudflare Workers Builds. GitHub Actions typecheck/test the package but intentionally do not duplicate deployment.
 
-```text
-app/src/main/java/com/kanarek/
-  HomeActivity.kt                 main navigation shell
-  data/
-    NewsItem.kt                   news model
-    FeedParser.kt                 RSS/Atom parser
-    NewsRepository.kt             fetch, merge, dedupe, sort
-    FeedCache.kt                  ETag/body cache
-    Headlines.kt                  headline ranking
-    Opml.kt                       OPML import/export
-    Station.kt                    radio/IPTV station model
-    M3uCodec.kt                   M3U/M3U8 codec
-    Favicons.kt                   station-logo fallback
-    StationDirectory.kt           Radio Browser integration
-    StationLogos.kt               iptv-org logo lookup
-    SiteSubscribe.kt              feed discovery and scraping
-    SettingsStore.kt              DataStore settings
-  cast/                           play/foss Cast implementations
-  player/
-    PlayerService.kt              playback and MediaSession
-  ui/
-    ReaderScreen.kt               reader and feed management
-    PlayerScreen.kt               station library and playback UI
-  widget/
-    KanarekWidgetProvider.kt      news widget
-    NewsRemoteViewsService.kt     news cards
-    WidgetRefreshWorker.kt        periodic refresh
-    PlayerWidgetProvider.kt       player widget
-worker/
-  src/index.ts                    Worker routes and feed processing
-```
+## Failure isolation and bounded I/O
 
-Further reading:
+External feeds, sites and streams are untrusted and unreliable. Network reads use explicit timeouts/byte limits, URL handling is constrained to HTTP(S), clean-reader redirects remain allowlisted, and one failed source should not sink unrelated sources.
 
+## Configuration and source of truth
+
+- Android/KMP dependency versions: `gradle/libs.versions.toml`.
+- Gradle distribution: `gradle/wrapper/gradle-wrapper.properties`.
+- SDK/application/release settings: module build files.
+- Worker dependencies: `worker/package.json` / lockfile.
+- Worker variables/bindings: `worker/wrangler.jsonc`.
+
+The app's default feed list and the Worker's `DEFAULT_FEEDS` are currently a deliberately duplicated runtime contract and must stay synchronized.
+
+Do not copy exact tool/library versions into architecture documentation.
+
+## Further reading
+
+- [Stack](STACK.md)
+- [Structure](STRUCTURE.md)
+- [Conventions](CONVENTIONS.md)
+- [Integrations](INTEGRATIONS.md)
+- [Testing](TESTING.md)
+- [Concerns](CONCERNS.md)
 - [Development](DEVELOPMENT.md)
 - [Worker and API](WORKER.md)
 - [Dependabot alert triage](DEPENDABOT_TRIAGE.md)
