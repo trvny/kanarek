@@ -24,7 +24,7 @@ Prefer descriptive, focused functions and existing state/data abstractions over 
 
 ## Kotlin Multiplatform boundary
 
-Use `shared/commonMain` when code:
+Use `shared/src/commonMain` when code:
 
 - is platform-independent,
 - models domain state,
@@ -32,7 +32,7 @@ Use `shared/commonMain` when code:
 - transforms/merges data,
 - can be tested without Android APIs.
 
-Use `shared/androidMain` or `shared/iosMain` for platform implementations needed by shared contracts.
+Use `shared/src/androidMain` or `shared/src/iosMain` for platform implementations needed by shared contracts.
 
 Use `app/src/main` for Android lifecycle, Compose UI, DataStore, WorkManager, services, notifications, launcher widgets and other Android APIs.
 
