@@ -9,12 +9,16 @@ on: # yamllint disable-line rule:truthy
     paths:
       - "worker/**"
       - "!worker/**/*.md"
+      - "app/src/main/java/com/kanarek/data/NewsRepository.kt"
+      - ".github/scripts/sync-default-feeds.mjs"
       - ".github/workflows/worker-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "worker/**"
       - "!worker/**/*.md"
+      - "app/src/main/java/com/kanarek/data/NewsRepository.kt"
+      - ".github/scripts/sync-default-feeds.mjs"
       - ".github/workflows/worker-ci.yml"
   workflow_dispatch:
 
@@ -39,6 +43,9 @@ jobs:
           node-version: "24"
           cache: npm
           cache-dependency-path: worker/package-lock.json
+
+      - name: Check default feed sync
+        run: node .github/scripts/sync-default-feeds.mjs --check
 
       - name: Typecheck and test
         working-directory: worker
