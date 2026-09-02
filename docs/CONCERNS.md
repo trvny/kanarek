@@ -2,17 +2,15 @@
 
 This is a maintenance-risk map, not a bug list. Items here are worth remembering when changing nearby code.
 
-## 1. Default feed configuration can drift
+## 1. Default feed generation is a cross-module contract
 
-**Risk:** medium.
+**Risk:** low.
 
-The default feed list currently exists in both Android `NewsRepository.DEFAULT_FEEDS` and Worker `DEFAULT_FEEDS` in `wrangler.jsonc`.
+`worker/wrangler.jsonc` is the maintained source of truth for default feeds. `.github/scripts/sync-default-feeds.mjs` renders that list into `NewsRepository.DEFAULT_FEEDS`, preserving the Android on-device fallback without requiring runtime access to the Worker or GitHub.
 
-That duplication is intentional today because both on-device and backend modes need defaults, but it creates a coupled contract. Updating only one side changes behavior depending on whether the Worker is enabled.
+**Current mitigation:** existing Worker CI runs the generator in `--check` mode for Worker changes and also when the Android default-feed block or sync script changes. A stale generated list therefore fails CI instead of silently drifting.
 
-**Current mitigation:** documentation explicitly requires both lists to stay synchronized.
-
-**Preferred direction:** if a simple maintained source can generate both representations without complicating F-Droid/local builds, converge on it rather than adding a third copy.
+**Watch for:** changing the shape/location of `DEFAULT_FEEDS` without updating the sync script, or introducing a second independently maintained default list elsewhere.
 
 ## 2. Worker tests do not exercise the Workers runtime
 
