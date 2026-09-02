@@ -42,15 +42,13 @@ Kanarek depends on third-party publishers, generated feeds, Radio Browser, iptv-
 
 **Watch for:** fixes that special-case one provider inside a shared model. Keep provider quirks at the integration edge where possible.
 
-## 5. Android is the shipping UI; iOS is currently only a shared target
+## 5. iOS is currently a portability target, not a shipping client
 
-**Risk:** product-direction ambiguity.
+**Risk:** low while this boundary stays explicit.
 
-The KMP module builds/tests Android and iOS targets, but this repository contains no standalone iOS application project. The shared boundary is real and CI-enforced, yet some Android-facing repositories/stores still naturally remain in `app/`.
+The KMP module builds/tests Android and iOS targets, but this repository contains no standalone iOS application project. Treat the current iOS target as a portability guard for shared logic until the repository gains an actual iOS client.
 
-[ASK USER] Is iOS intended to become a shipping Kanarek client, or is the current iOS target mainly a portability guard for shared logic? The answer changes how aggressively new domain/data work should be pushed into `shared`.
-
-Until that is decided, prefer portable `commonMain` code when it is naturally platform-independent, but do not force Android-specific lifecycle/storage code through abstractions solely for hypothetical reuse.
+Prefer portable `commonMain` code when it is naturally platform-independent, but do not force Android-specific lifecycle/storage code through abstractions solely for hypothetical reuse. If a shipping iOS client is added, revisit this boundary as a product/architecture change.
 
 ## 6. Release signing after organization migration is external state
 
