@@ -82,11 +82,13 @@ The Activity binds directly to the same-process service through a local Binder. 
 The player supports:
 
 - HLS and DASH through matching Media3 modules,
-- per-stream `User-Agent` and `Referer` headers through a resolving data source,
+- per-stream `User-Agent` and `Referer` headers for local ExoPlayer playback through a resolving data source,
 - ICY/media metadata for now-playing text,
 - retry/failure state that is surfaced to the UI,
 - a video surface for TV streams while keeping radio audio-only,
 - Google Cast in the `play` flavor.
+
+The default Cast receiver fetches media itself, so Kanarek's local per-stream request-header overrides do not transfer to Cast. Streams that require those headers can therefore work locally and fail when cast.
 
 The `foss` flavor supplies matching no-op Cast glue so `main` remains GMS-free and flavor-agnostic.
 
@@ -123,9 +125,9 @@ External feeds, sites and streams are untrusted and unreliable. Network reads us
 - Gradle distribution: `gradle/wrapper/gradle-wrapper.properties`.
 - SDK/application/release settings: module build files.
 - Worker dependencies: `worker/package.json` / lockfile.
-- Worker variables/bindings: `worker/wrangler.jsonc`.
+- Worker variables/bindings and default feeds: `worker/wrangler.jsonc`.
 
-The app's default feed list and the Worker's `DEFAULT_FEEDS` are currently a deliberately duplicated runtime contract and must stay synchronized.
+`.github/scripts/sync-default-feeds.mjs` renders `vars.DEFAULT_FEEDS` into `NewsRepository.DEFAULT_FEEDS`; existing Worker CI rejects drift between the maintained Worker configuration and the Android representation.
 
 Do not copy exact tool/library versions into architecture documentation.
 
