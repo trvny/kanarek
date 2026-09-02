@@ -9,6 +9,7 @@ on: # yamllint disable-line rule:truthy
     paths:
       - "worker/**"
       - "!worker/**/*.md"
+      - "app/src/main/java/com/kanarek/data/NewsRepository.kt"
       - ".github/scripts/sync-default-feeds.mjs"
       - ".github/workflows/worker-ci.yml"
   pull_request:
@@ -16,6 +17,7 @@ on: # yamllint disable-line rule:truthy
     paths:
       - "worker/**"
       - "!worker/**/*.md"
+      - "app/src/main/java/com/kanarek/data/NewsRepository.kt"
       - ".github/scripts/sync-default-feeds.mjs"
       - ".github/workflows/worker-ci.yml"
   workflow_dispatch:
