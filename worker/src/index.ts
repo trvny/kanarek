@@ -58,6 +58,7 @@
 
 import { generateAtomFeed, generateRssFeed, generateJsonFeed, parseFeed as parseFeedSmith } from "feedsmith";
 import { handleArticle } from "./article";
+import { assertOutboundUrlAllowed, hostAllowed as policyHostAllowed } from "./outbound-policy";
 
 export interface Env {
   /** Optional comma-separated default feeds when the request omits ?feeds= */
@@ -767,11 +768,7 @@ export async function fetchOutbound(target: string | URL, env: Env, init: Reques
   let current = new URL(target);
 
   for (let redirects = 0; redirects <= MAX_OUTBOUND_REDIRECTS; redirects++) {
-    const defaultPort = current.protocol === "https:" ? "443" : current.protocol === "http:" ? "80" : "";
-    if (!defaultPort || current.username || current.password || (current.port && current.port !== defaultPort)) {
-      throw new Error("host not allowed");
-    }
-    if (!hostAllowed(current.hostname, env)) throw new Error("host not allowed");
+    assertOutboundUrlAllowed(current, env);
 
     const response = await fetch(current, { ...init, redirect: "manual" });
     if (![301, 302, 303, 307, 308].includes(response.status)) return response;
@@ -1031,24 +1028,7 @@ export function buildAtom(o: { title: string; pageUrl: string; selfUrl: string; 
 // --- misc helpers ---
 
 export function hostAllowed(host: string, env: Env): boolean {
-  const normalizedHost = host.toLowerCase().replace(/\.$/, "");
-  if (
-    !normalizedHost
-    || normalizedHost === "localhost"
-    || normalizedHost.endsWith(".localhost")
-    || normalizedHost.endsWith(".local")
-    || normalizedHost.endsWith(".internal")
-    || normalizedHost.endsWith(".home")
-    || normalizedHost.endsWith(".lan")
-    || normalizedHost.includes(":")
-    || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(normalizedHost)
-  ) return false;
-
-  const allow = (env.ALLOWED_HOSTS || "").split(",").map((s) => s.trim()).filter(Boolean);
-  return !allow.length || allow.some((raw) => {
-    const suffix = raw.toLowerCase().replace(/^\./, "").replace(/\.$/, "");
-    return suffix.length > 0 && (normalizedHost === suffix || normalizedHost.endsWith(`.${suffix}`));
-  });
+  return policyHostAllowed(host, env);
 }
 
 /** First URL from a srcset attribute (the smallest candidate), or null. */

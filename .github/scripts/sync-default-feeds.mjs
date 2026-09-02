@@ -2,6 +2,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { assertOutboundUrlAllowed } from "../../worker/src/outbound-policy.ts";
 
 const root = process.cwd();
 const wranglerPath = resolve(root, "worker/wrangler.jsonc");
@@ -106,38 +107,6 @@ function stripTrailingCommas(input) {
   return output;
 }
 
-function workerHostAllowed(host, allowedHosts) {
-  const normalizedHost = host.toLowerCase().replace(/\.$/, "");
-  if (
-    !normalizedHost
-    || normalizedHost === "localhost"
-    || normalizedHost.endsWith(".localhost")
-    || normalizedHost.endsWith(".local")
-    || normalizedHost.endsWith(".internal")
-    || normalizedHost.endsWith(".home")
-    || normalizedHost.endsWith(".lan")
-    || normalizedHost.includes(":")
-    || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(normalizedHost)
-  ) {
-    return false;
-  }
-
-  return !allowedHosts.length || allowedHosts.some((raw) => {
-    const suffix = raw.toLowerCase().replace(/^\./, "").replace(/\.$/, "");
-    return suffix.length > 0
-      && (normalizedHost === suffix || normalizedHost.endsWith(`.${suffix}`));
-  });
-}
-
-function workerUrlAllowed(url, allowedHosts) {
-  const defaultPort = url.protocol === "https:" ? "443" : url.protocol === "http:" ? "80" : "";
-  return Boolean(defaultPort)
-    && !url.username
-    && !url.password
-    && (!url.port || url.port === defaultPort)
-    && workerHostAllowed(url.hostname, allowedHosts);
-}
-
 const wrangler = await readFile(wranglerPath, "utf8");
 const config = JSON.parse(stripTrailingCommas(stripJsoncComments(wrangler)));
 const defaultFeeds = config?.vars?.DEFAULT_FEEDS;
@@ -148,10 +117,7 @@ const allowedHostsRaw = config?.vars?.ALLOWED_HOSTS;
 if (allowedHostsRaw != null && typeof allowedHostsRaw !== "string") {
   throw new Error("worker/wrangler.jsonc vars.ALLOWED_HOSTS must be a string when defined");
 }
-const allowedHosts = (allowedHostsRaw ?? "")
-  .split(",")
-  .map((host) => host.trim())
-  .filter(Boolean);
+const workerEnv = { ALLOWED_HOSTS: allowedHostsRaw ?? "" };
 
 const feeds = defaultFeeds
   .split(",")
@@ -168,8 +134,9 @@ if (new Set(feeds).size !== feeds.length) {
   throw new Error("vars.DEFAULT_FEEDS contains duplicate URLs");
 }
 for (const feed of feeds) {
-  const url = new URL(feed);
-  if (!workerUrlAllowed(url, allowedHosts)) {
+  try {
+    assertOutboundUrlAllowed(feed, workerEnv);
+  } catch {
     throw new Error(`Default feed URL is not allowed by Worker rules: ${feed}`);
   }
 }
