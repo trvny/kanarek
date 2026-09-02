@@ -4,6 +4,5 @@ merge_queue:
 scopes:
   source:
     files:
-      docs:
-        include:
-          - docs/**
+      include:
+        - docs/**
