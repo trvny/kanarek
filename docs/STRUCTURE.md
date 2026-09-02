@@ -108,6 +108,6 @@ Notable workflows:
 
 1. Put platform-independent models/codecs/state machines in `shared/commonMain`.
 2. Put Android UI, services, launcher widgets, DataStore and WorkManager glue in `app/src/main`.
-3. Put platform-specific implementations of shared contracts in `shared/androidMain` or `shared/iosMain`.
+3. Put platform-specific implementations of shared contracts in `shared/src/androidMain` or `shared/src/iosMain`.
 4. Put Google Cast-only code in `app/src/play` and maintain matching GMS-free surfaces in `app/src/foss`.
 5. Put backend-only edge logic in `worker/`; never make it mandatory for basic feed reading.
