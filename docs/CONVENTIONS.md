@@ -97,7 +97,7 @@ Use these maintained sources rather than copying values into prose/code:
 - Worker bindings/vars: `worker/wrangler.jsonc`,
 - application version: `app/build.gradle.kts`.
 
-One notable exception is the default feed list, which is currently required in both the app and Worker configuration. Any default-feed change must update both sides in the same logical change.
+`worker/wrangler.jsonc` is also the source of truth for default feeds. After changing `vars.DEFAULT_FEEDS`, run `node .github/scripts/sync-default-feeds.mjs`; it rewrites `NewsRepository.DEFAULT_FEEDS`. Existing Worker CI checks the generated block and also runs when the Android-side block or sync script changes.
 
 ## Tests and documentation
 
