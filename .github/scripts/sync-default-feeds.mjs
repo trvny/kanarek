@@ -40,17 +40,25 @@ function stripJsoncComments(input) {
 
     if (char === "/" && next === "/") {
       while (i < input.length && input[i] !== "\n") i += 1;
-      output += "\n";
+      if (i < input.length) output += "\n";
       continue;
     }
 
     if (char === "/" && next === "*") {
       i += 2;
-      while (i < input.length && !(input[i] === "*" && input[i + 1] === "/")) {
+      let closed = false;
+      while (i < input.length) {
+        if (input[i] === "*" && input[i + 1] === "/") {
+          i += 1;
+          closed = true;
+          break;
+        }
         if (input[i] === "\n") output += "\n";
         i += 1;
       }
-      i += 1;
+      if (!closed) {
+        throw new Error("worker/wrangler.jsonc contains an unterminated block comment");
+      }
       continue;
     }
 
@@ -98,12 +106,43 @@ function stripTrailingCommas(input) {
   return output;
 }
 
+function workerHostAllowed(host, allowedHosts) {
+  const normalizedHost = host.toLowerCase().replace(/\.$/, "");
+  if (
+    !normalizedHost
+    || normalizedHost === "localhost"
+    || normalizedHost.endsWith(".localhost")
+    || normalizedHost.endsWith(".local")
+    || normalizedHost.endsWith(".internal")
+    || normalizedHost.endsWith(".home")
+    || normalizedHost.endsWith(".lan")
+    || normalizedHost.includes(":")
+    || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(normalizedHost)
+  ) {
+    return false;
+  }
+
+  return !allowedHosts.length || allowedHosts.some((raw) => {
+    const suffix = raw.toLowerCase().replace(/^\./, "").replace(/\.$/, "");
+    return suffix.length > 0
+      && (normalizedHost === suffix || normalizedHost.endsWith(`.${suffix}`));
+  });
+}
+
 const wrangler = await readFile(wranglerPath, "utf8");
 const config = JSON.parse(stripTrailingCommas(stripJsoncComments(wrangler)));
 const defaultFeeds = config?.vars?.DEFAULT_FEEDS;
 if (typeof defaultFeeds !== "string") {
   throw new Error("worker/wrangler.jsonc does not define string vars.DEFAULT_FEEDS");
 }
+const allowedHostsRaw = config?.vars?.ALLOWED_HOSTS;
+if (allowedHostsRaw != null && typeof allowedHostsRaw !== "string") {
+  throw new Error("worker/wrangler.jsonc vars.ALLOWED_HOSTS must be a string when defined");
+}
+const allowedHosts = (allowedHostsRaw ?? "")
+  .split(",")
+  .map((host) => host.trim())
+  .filter(Boolean);
 
 const feeds = defaultFeeds
   .split(",")
@@ -123,6 +162,9 @@ for (const feed of feeds) {
   const url = new URL(feed);
   if (url.protocol !== "http:" && url.protocol !== "https:") {
     throw new Error(`Default feed must use HTTP(S): ${feed}`);
+  }
+  if (!workerHostAllowed(url.hostname, allowedHosts)) {
+    throw new Error(`Default feed host is not allowed by Worker rules: ${feed}`);
   }
 }
 
