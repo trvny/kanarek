@@ -38,7 +38,7 @@ Large size is not itself a defect, but these files combine many routes/component
 
 Kanarek depends on third-party publishers, generated feeds, Radio Browser, iptv-org metadata and individual radio/IPTV stream endpoints. Hosts can disappear, redirect, rate-limit, change HTML or require new headers without a Kanarek release.
 
-**Current mitigation:** bounded reads, per-source failure isolation, on-device fallback, persisted stations, last-known-good widget data, optional directory/logo lookups and per-stream header support.
+**Current mitigation:** bounded reads, per-source failure isolation, on-device fallback, persisted stations, last-known-good widget data, optional directory/logo lookups and per-stream request headers for local playback. Cast uses the receiver's own network requests, so streams that require Kanarek's local `User-Agent`/`Referer` overrides can still fail when cast.
 
 **Watch for:** fixes that special-case one provider inside a shared model. Keep provider quirks at the integration edge where possible.
 
