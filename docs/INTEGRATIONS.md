@@ -4,7 +4,7 @@ Kanarek deliberately keeps most integrations behind small boundaries so basic re
 
 ## Cloudflare Worker
 
-The Android app defaults to the deployed Worker at `https://kanarek.travny.workers.dev`, but the backend URL is configurable and may be empty.
+Fresh installs leave the reader backend URL empty, so ordinary feeds are fetched and parsed on-device by default. The deployed Worker at `https://kanarek.travny.workers.dev` is the built-in fallback only for Worker-dependent integrations such as discovery, station search and logo lookup; reader feed aggregation and clean article extraction use it only when a backend URL is explicitly configured.
 
 The Worker provides:
 
@@ -33,7 +33,7 @@ The default reader configuration currently includes a mixture of direct publishe
 - Antyweb,
 - generated feeds hosted from the `feedseek` project.
 
-Default feeds are duplicated between Android `NewsRepository.DEFAULT_FEEDS` and Worker `DEFAULT_FEEDS`. This is an explicit coupled contract: changes must update both sides together.
+`worker/wrangler.jsonc` is the maintained source of truth for default feeds. `.github/scripts/sync-default-feeds.mjs` renders `vars.DEFAULT_FEEDS` into `NewsRepository.DEFAULT_FEEDS`, and existing Worker CI rejects drift between the two representations.
 
 User-added RSS/Atom sources do not require the Worker. They can be fetched and parsed on-device.
 
@@ -62,6 +62,8 @@ Google Cast support exists only in the `play` flavor:
 - Media3 Cast bridges remote playback onto the Player abstraction,
 - Android MediaRouter provides route/device discovery UI,
 - Google Play Services Cast Framework provides Cast sessions.
+
+The default Cast receiver fetches streams itself, so Kanarek's local per-stream `User-Agent` and `Referer` overrides do not apply while casting. Streams that depend on those headers may work locally but fail on the Cast target.
 
 The `foss` flavor has compatible no-op Cast implementations and no proprietary GMS dependency.
 
