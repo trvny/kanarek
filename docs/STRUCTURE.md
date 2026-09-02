@@ -34,7 +34,7 @@ com/kanarek/
 Key boundaries:
 
 - `HomeActivity` hosts `ReaderScreen` and `PlayerScreen` in a two-page `HorizontalPager` with bottom navigation and a drawer.
-- `data/` in the app is for Android-aware repositories, stores, caches and integration glue. Pure feed/domain codecs belong in `shared/commonMain`.
+- `data/` in the app is for Android-aware repositories, stores, caches and integration glue. Pure feed/domain codecs belong in `shared/src/commonMain`.
 - `player/PlayerService.kt` owns the long-lived playback engine and MediaSession.
 - `widget/` uses `RemoteViews`, launcher-safe resources, explicit state stores and WorkManager refresh jobs.
 
