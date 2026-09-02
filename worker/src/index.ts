@@ -58,7 +58,7 @@
 
 import { generateAtomFeed, generateRssFeed, generateJsonFeed, parseFeed as parseFeedSmith } from "feedsmith";
 import { handleArticle } from "./article";
-import { assertOutboundUrlAllowed, hostAllowed as policyHostAllowed } from "./outbound-policy";
+import { assertOutboundUrlAllowed, hostAllowed as policyHostAllowed } from "./outbound-policy.js";
 
 export interface Env {
   /** Optional comma-separated default feeds when the request omits ?feeds= */

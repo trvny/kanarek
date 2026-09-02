@@ -1,8 +1,4 @@
-export interface OutboundPolicyEnv {
-  ALLOWED_HOSTS?: string;
-}
-
-export function hostAllowed(host: string, env: OutboundPolicyEnv): boolean {
+export function hostAllowed(host, env) {
   const normalizedHost = host.toLowerCase().replace(/\.$/, "");
   if (
     !normalizedHost
@@ -23,7 +19,7 @@ export function hostAllowed(host: string, env: OutboundPolicyEnv): boolean {
   });
 }
 
-export function outboundUrlAllowed(url: URL, env: OutboundPolicyEnv): boolean {
+export function outboundUrlAllowed(url, env) {
   const defaultPort = url.protocol === "https:" ? "443" : url.protocol === "http:" ? "80" : "";
   return Boolean(defaultPort)
     && !url.username
@@ -32,7 +28,7 @@ export function outboundUrlAllowed(url: URL, env: OutboundPolicyEnv): boolean {
     && hostAllowed(url.hostname, env);
 }
 
-export function assertOutboundUrlAllowed(target: string | URL, env: OutboundPolicyEnv): URL {
+export function assertOutboundUrlAllowed(target, env) {
   const url = target instanceof URL ? target : new URL(target);
   if (!outboundUrlAllowed(url, env)) throw new Error("host not allowed");
   return url;

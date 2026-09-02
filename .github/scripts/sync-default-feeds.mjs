@@ -2,7 +2,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { assertOutboundUrlAllowed } from "../../worker/src/outbound-policy.ts";
+import { assertOutboundUrlAllowed } from "../../worker/src/outbound-policy.js";
 
 const root = process.cwd();
 const wranglerPath = resolve(root, "worker/wrangler.jsonc");
