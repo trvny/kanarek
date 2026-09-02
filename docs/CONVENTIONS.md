@@ -34,7 +34,7 @@ Use `shared/commonMain` when code:
 
 Use `shared/androidMain` or `shared/iosMain` for platform implementations needed by shared contracts.
 
-Use `app/main` for Android lifecycle, Compose UI, DataStore, WorkManager, services, notifications, launcher widgets and other Android APIs.
+Use `app/src/main` for Android lifecycle, Compose UI, DataStore, WorkManager, services, notifications, launcher widgets and other Android APIs.
 
 Do not move portable logic back into `app` merely because Android is currently the only shipping UI. The shared module is compiled/tested for both Android and iOS.
 
