@@ -2,10 +2,16 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: /
-    schedule: { interval: weekly }
+    schedule:
+      interval: "weekly"
+      time: "21:37"
+      timezone: "Europe/Warsaw"
   - package-ecosystem: "gradle"
     directory: /
-    schedule: { interval: weekly }
+    schedule:
+      interval: "weekly"
+      time: "21:37"
+      timezone: "Europe/Warsaw"
     groups:
       androidx:
         patterns: ["androidx*"]
@@ -13,4 +19,7 @@ updates:
         patterns: ["org.jetbrains.kotlin*"]
   - package-ecosystem: "npm"
     directory: /worker
-    schedule: { interval: weekly }
+    schedule:
+      interval: "weekly"
+      time: "21:37"
+      timezone: "Europe/Warsaw"
